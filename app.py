@@ -406,7 +406,7 @@ BASE_HTML = """
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta property="og:title" content="KF Ateliê by Keila Fiuza">
 <meta property="og:description" content="Roupas sob medida | Agende seu horário ✨">
-<meta property="og:image" content="https://atelie-kf.onrender.com/logo.png">
+<meta property="og:image" content="https://atelie-kf.onrender.com/static/logo.png">
 <meta property="og:url" content="https://atelie-kf.onrender.com/">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
