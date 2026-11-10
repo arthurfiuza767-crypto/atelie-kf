@@ -27,10 +27,10 @@ app = Flask(__name__)
 
 app.secret_key = os.getenv(
     "FLASK_SECRET_KEY",
-    "troque-esta-chave"
+    "chave-temporaria-local"
 )
 
-SENHA_ADMIN = os.getenv("SENHA_ADMIN", "kedacriar0412")
+SENHA_ADMIN = os.getenv("SENHA_ADMIN", "")
 
 REPLICATE_API_TOKEN = os.getenv(
     "REPLICATE_API_TOKEN", ""
@@ -404,6 +404,12 @@ BASE_HTML = """
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta property="og:title" content="KF Ateliê by Keila Fiuza">
+<meta property="og:description" content="Roupas sob medida | Agende seu horário ✨">
+<meta property="og:image" content="https://atelie-kf.onrender.com/logo.png">
+<meta property="og:url" content="https://atelie-kf.onrender.com/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 
 <title>{{ titulo }} | KF Ateliê</title>
 
