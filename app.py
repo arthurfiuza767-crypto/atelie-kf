@@ -841,6 +841,11 @@ def gerar():
             src="{{ resultado }}"
             alt="Roupa gerada">
 
+                <a href="{{ resultado }}" download="atelie-kf-provador.jpg" style="display:block; background:#22c55e; color:white; padding:12px; text-align:center; border-radius:10px; text-decoration:none; font-weight:bold; margin-top:10px;">
+              ⬇️ Baixar minha foto
+            </a>
+            
+
         {% endif %}
 
     </section>
@@ -955,13 +960,12 @@ def provador():
             class="preview"
             src="{{ resultado }}"
             alt="Resultado do provador">
+                <a href="{{ resultado }}" download="atelie-kf-provador.jpg" style="display:block; background:#22c55e; color:white; padding:12px; text-align:center; border-radius:10px; text-decoration:none; font-weight:bold; margin-top:10px;">
+              ⬇️ Baixar minha foto
+            </a>
+            
 
         {% endif %}
-
-        <a href="{{ resultado }}" download="atelie-kf-provador.jpg" style="display:block; background:#22c55e; color:white; padding:12px; text-align:center; border-radius:10px; text-decoration:none; font-weight:bold; margin-top:10px;">
-  ⬇️ Baixar minha foto
-</a>
-
     </section>
     """
 
