@@ -61,8 +61,10 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["MAX_CONTENT_LENGTH"] = 12 * 1024 * 1024
 
 HORARIOS = [
-    f"{hora:02d}:00"
-    for hora in range(10, 21)
+    f"{hora:02d}:{minuto:02d}"
+    for hora in range(10, 22)
+    for minuto in [0, 15, 30, 45]
+    if not (hora == 21 and minuto > 0)
 ]
 
 EXTENSOES_PERMITIDAS = {
