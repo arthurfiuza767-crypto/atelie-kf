@@ -365,32 +365,77 @@ def gerar_com_flux(prompt):
     )
 
 
-def gerar_provador(
-    foto_pessoa_base64,
-    descricao
-):
-
+def gerar_provador(foto_pessoa_base64, descricao):
     print("[PROVADOR] Gerando roupa...")
 
+    # PASSO 0 - Diminui a foto para ficar mais rápido!
+    try:
+        from PIL import Image
+        import io
+
+        if "," in foto_pessoa_base64:
+            cabecalho, dados = foto_pessoa_base64.split(",", 1)
+        else:
+            cabecalho = "data:image/jpeg;base64"
+            dados = foto_pessoa_base64
+
+        imagem_bytes = base64.b64decode(dados)
+        img = Image.open(io.BytesIO(imagem_bytes))
+        img.thumbnail((768, 1024))
+
+        buffer = io.BytesIO()
+        img.save(buffer, format="JPEG")
+        foto_pessoa_base64 = cabecalho + "," + base64.b64encode(buffer.getvalue()).decode("utf-8")
+        print("[PROVADOR] Foto diminuida para 768px")
+    except Exception as e:
+        print(f"Não consegui diminuir: {e}")
+
+    # Descobre o tipo de roupa sozinho
+    d = descricao.lower()
+    if any(p in d for p in ["conjunto", "macacão", "macacao", "jumpsuit", "vestido", "noiva", "longo"]):
+        categoria = "dresses"
+        tipo = "vestido / roupa de corpo inteiro"
+    elif any(p in d for p in ["calça", "calca", "legging", "jeans", "short", "saia", "bermuda", "pantalona"]):
+        categoria = "lower_body"
+        tipo = "parte de baixo"
+    elif any(p in d for p in ["blusa", "camisa", "camiseta", "top", "cropp", "cropped", "jaqueta", "casaco", "blazer", "suéter", "moletom", "colete"]):
+        categoria = "upper_body"
+        tipo = "parte de cima"
+    else:
+        categoria = "dresses"
+        tipo = "roupa"
+
+    # PASSO 1 - Criando a roupa
     roupa = gerar_com_flux(
-        "Single realistic clothing garment, "
-        "isolated on a plain light background: "
-        + descricao
+        f"foto de produto profissional de {descricao}, {tipo}, roupa sozinha em cabide em fundo branco limpo, vista plana frontal, sem pessoa, sem modelo, sem corpo, só a roupa"
     )
 
     print("[PROVADOR] Aplicando roupa na pessoa...")
 
+    # Pausa curtinha para não dar erro 429
+    time.sleep(8)
+
     versao = get_idm_version()
 
-    resultado = replicate_run_by_version(
-        versao,
+    resultado = None
+    for tentativa in range(3):
+        try:
+            resultado = replicate_run_by_version(
+                versao,
+                {
+                    "garm_img": roupa,
+                    "human_img": foto_pessoa_base64,
+                    "garment_des": descricao,
+                    "category": categoria
+                }
+            )
+            break
+        except Exception as e:
+            print(f"Tentativa {tentativa+1} falhou: {e}")
+            time.sleep(10)
 
-        {
-            "garm_img": roupa,
-            "human_img": foto_pessoa_base64,
-            "garment_des": descricao
-        }
-    )
+    if resultado is None:
+        raise RuntimeError("Deu erro, tenta de novo em 1 minutinho!")
 
     return baixar_imagem_base64(
         primeira_url_saida(resultado)
