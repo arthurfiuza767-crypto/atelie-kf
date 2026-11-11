@@ -1787,6 +1787,9 @@ def arquivo_grande(erro):
 # ==========================================
 # INICIAR SISTEMA
 # ==========================================
+@app.route('/loaderio-f488d573a62d709942d416f7ca95b72c.txt')
+def verifica_loader():
+    return 'loaderio-f488d573a62d709942d416f7ca95b72c'
 
 if __name__ == "__main__":
 
