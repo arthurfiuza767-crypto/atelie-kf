@@ -3,3 +3,4 @@ python-dotenv==1.0.1
 replicate==1.0.4
 gunicorn==22.0.0 
 requests
+Pillow

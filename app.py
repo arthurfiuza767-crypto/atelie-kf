@@ -958,6 +958,10 @@ def provador():
 
         {% endif %}
 
+        <a href="{{ resultado }}" download="atelie-kf-provador.jpg" style="display:block; background:#22c55e; color:white; padding:12px; text-align:center; border-radius:10px; text-decoration:none; font-weight:bold; margin-top:10px;">
+  ⬇️ Baixar minha foto
+</a>
+
     </section>
     """
 
@@ -1790,6 +1794,105 @@ def arquivo_grande(erro):
 @app.route('/loaderio-f488d573a62d709942d416f7ca95b72c.txt')
 def verifica_loader():
     return 'loaderio-f488d573a62d709942d416f7ca95b72c'
+
+
+# ==========================================
+# SISTEMA DE FILA DO PROVADOR - KF ATELIÊ
+# ==========================================
+
+import threading
+import uuid
+import base64
+from flask import jsonify
+
+# Armazenamento temporário dos trabalhos
+PROVADOR_JOBS = {}
+
+# Proteção para acesso simultâneo
+PROVADOR_LOCK = threading.Lock()
+
+
+def executar_trabalho_provador(job_id, foto_base64, descricao):
+
+    try:
+        # Executa a função original do provador
+        resultado = gerar_provador(foto_base64, descricao)
+
+        with PROVADOR_LOCK:
+            PROVADOR_JOBS[job_id]["resultado"] = resultado
+            PROVADOR_JOBS[job_id]["status"] = "concluido"
+
+    except Exception as erro:
+
+        with PROVADOR_LOCK:
+            PROVADOR_JOBS[job_id]["status"] = "erro"
+            PROVADOR_JOBS[job_id]["erro"] = str(erro)
+
+
+# Rota para iniciar uma geração em segundo plano
+@app.route("/iniciar_provador", methods=["POST"])
+def iniciar_provador():
+
+    foto = request.files.get("foto")
+    descricao = request.form.get("descricao", "").strip()
+
+    if not foto or not foto.filename:
+        return jsonify({"erro": "Selecione uma foto."}), 400
+
+    if not descricao:
+        return jsonify({"erro": "Informe a descrição da roupa."}), 400
+
+    try:
+        imagem = foto.read()
+
+        foto_base64 = (
+            f"data:{foto.mimetype or 'image/jpeg'};base64,"
+            + base64.b64encode(imagem).decode("utf-8")
+        )
+
+        job_id = str(uuid.uuid4())
+
+        with PROVADOR_LOCK:
+            PROVADOR_JOBS[job_id] = {
+                "status": "gerando",
+                "resultado": None,
+                "erro": None
+            }
+
+        thread = threading.Thread(
+            target=executar_trabalho_provador,
+            args=(job_id, foto_base64, descricao),
+            daemon=True
+        )
+
+        thread.start()
+
+        return jsonify({
+            "job_id": job_id,
+            "status": "gerando"
+        })
+
+    except Exception as erro:
+        return jsonify({"erro": str(erro)}), 500
+
+
+# Rota para consultar o andamento da geração
+@app.route("/status_provador/<job_id>", methods=["GET"])
+def status_provador(job_id):
+
+    with PROVADOR_LOCK:
+        trabalho = PROVADOR_JOBS.get(job_id)
+
+        if trabalho is None:
+            return jsonify({
+                "status": "nao_encontrado"
+            }), 404
+
+        return jsonify({
+            "status": trabalho["status"],
+            "resultado": trabalho["resultado"],
+            "erro": trabalho["erro"]
+        })
 
 if __name__ == "__main__":
 
