@@ -1129,12 +1129,17 @@ def agendar():
                 )
 
                 mensagem = (
-                    f"Olá! Sou {nome}. "
-                    f"Solicitei um horário no KF Ateliê "
-                    f"para {data_texto} às {hora}. "
-                    f"Serviço: {servico}."
-                )
-
+    f"✨ *KF ATELIÊ* ✨\n"
+    f"-------------------------\n"
+    f"Olá, *{nome}!* 👋\n\n"
+    f"Seu horário foi reservado com sucesso! ✅\n\n"
+    f"📅 *Data:* {data_texto}\n"
+    f"🕙 *Horário:* {hora}\n"
+    f"✂️ *Serviço:* {servico}\n"
+    f"📍 *Local:* KF Ateliê\n\n"
+    f"Te esperamos lá! Qualquer dúvida, é só chamar aqui. 💛\n\n"
+    f"_Obrigada pela preferência!_"
+)
                 link = (
                     "https://wa.me/5538999442556"
                     "?text="
@@ -1150,11 +1155,12 @@ def agendar():
 
         <h1>Agendar Horário</h1>
 
-        <p>
-            Segunda a Sábado, das 10h às 21h.
-            Domingo: fechado.
-        </p>
-
+        
+<p style="text-align:center; line-height:1.8; margin: 10px 0 20px 0;">
+    ✨ <b>Segunda a Sábado</b><br>
+    🕙 <span style="font-size:16px;">das <b>10h às 21h</b></span><br>
+    <span style="color:#999; font-size:13px;">— Domingo: fechado —</span>
+</p>
         {% if erro %}
         <div class="flash erro">{{ erro }}</div>
         {% endif %}
