@@ -871,9 +871,26 @@ def gerar():
                 rows="5"
                 required>{{ prompt }}</textarea>
 
-            <button class="botao" type="submit">
-                GERAR ROUPA
-            </button>
+            <button id="btn-gerar" class="botao" type="submit">
+  GERAR ROUPA
+</button>
+<div id="aviso-gerar" style="display:none; margin-top:15px; font-weight:bold;">
+  Criando sua roupa... 💛 Aguarde, não recarregue e não clique de novo!
+</div>
+
+<script>
+let jaEnviouGerar = false;
+document.querySelector('form').addEventListener('submit', function(e) {
+  if (jaEnviouGerar) {
+    e.preventDefault();
+    return;
+  }
+  jaEnviouGerar = true;
+  document.getElementById('btn-gerar').textContent = 'CRIANDO... AGUARDE 💛';
+  document.getElementById('btn-gerar').disabled = true;
+  document.getElementById('aviso-gerar').style.display = 'block';
+});
+</script>
 
         </form>
 
@@ -990,16 +1007,52 @@ def provador():
                 name="descricao"
                 rows="4"
                 required></textarea>
+        
+         <button id="btn-provador" class="botao" type="submit">
+  EXPERIMENTAR ROUPA
+</button>
+<div id="aviso-provador" style="display:none; margin-top:15px; font-weight:bold;">
+  Gerando sua foto... 💛 Aguarde uns 40 segundos, não recarregue e não clique de novo!
+</div>
 
-            <button class="botao" type="submit">
-                EXPERIMENTAR ROUPA
-            </button>
+<script>
+let jaEnviouProvador = false;
+document.querySelector('form').addEventListener('submit', function(e) {
+  if (jaEnviouProvador) {
+    e.preventDefault();
+    return;
+  }
+  jaEnviouProvador = true;
+  document.getElementById('btn-provador').textContent = 'GERANDO... AGUARDE 💛';
+  document.getElementById('btn-provador').disabled = true;
+  document.getElementById('aviso-provador').style.display = 'block';
+});
+</script>
 
         </form>
 
         {% if resultado %}
 
-        <h2>Seu resultado</h2>
+        <h2>Seu resultado</h2><button id="btn-provador" class="botao" type="submit">
+  EXPERIMENTAR ROUPA
+</button>
+<div id="aviso-provador" style="display:none; margin-top:15px; font-weight:bold;">
+  Gerando sua foto... 💛 Aguarde uns 40 segundos, não recarregue e não clique de novo!
+</div>
+
+<script>
+let jaEnviouProvador = false;
+document.querySelector('form').addEventListener('submit', function(e) {
+  if (jaEnviouProvador) {
+    e.preventDefault();
+    return;
+  }
+  jaEnviouProvador = true;
+  document.getElementById('btn-provador').textContent = 'GERANDO... AGUARDE 💛';
+  document.getElementById('btn-provador').disabled = true;
+  document.getElementById('aviso-provador').style.display = 'block';
+});
+</script>
 
         <img
             class="preview"
