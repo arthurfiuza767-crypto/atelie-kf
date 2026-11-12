@@ -1628,8 +1628,7 @@ def admin():
         f"Mas não se preocupe, viu? A gente remarca! ✨\n"
         f"Me fala um dia que fica bom para você que eu já deixo reservado na agenda, combinado? 🗓️💕\n\n"
         f"Obrigada pela compreensão! 🙏"
-
-    )
+        )
     return pagina(
         "Painel Administrativo",
         conteudo,
