@@ -1849,12 +1849,13 @@ def adicionar_trabalho():
         )
 
         url_imagem = upload_result.get("secure_url")
-        trabalhos.append({
+        lista = carregar_trabalhos()
+        lista.append({
             "titulo": titulo,
             "descricao": descricao,
             "imagem": url_imagem
         })
-        salvar_trabalhos(trabalhos)
+        salvar_trabalhos(lista)
         flash("Trabalho adicionado!", "sucesso")
         return redirect("/admin")
 
