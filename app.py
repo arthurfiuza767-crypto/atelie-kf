@@ -42,6 +42,37 @@ def enviar_para_cloudinary(imagem_base64):
         return imagem_base64
 # ===== FIM CLOUDINARY =====
 
+# ===== SUPABASE - SÓ ADICIONAR, NÃO APAGAR NADA =====
+SUPABASE_URL = os.getenv("SUPABASE_URL", "https://kmwvjjynbkhwgsprdfpr.supabase.co").rstrip("/")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "sb_publishable_7Iosub0LIp_VdCfkQ5wmCg_1XsMXZy_")
+
+SUPA_HEADERS = {
+    "apikey": SUPABASE_KEY,
+    "Authorization": f"Bearer {SUPABASE_KEY}",
+    "Content-Type": "application/json",
+    "Prefer": "return=representation"
+}
+
+def supabase_ler(chave):
+    try:
+        r = requests.get(f"{SUPABASE_URL}/rest/v1/dados?chave=eq.{chave}&select=valor", headers=SUPA_HEADERS, timeout=10)
+        if r.ok and r.json():
+            return r.json()[0].get("valor")
+    except Exception as e:
+        print("[SUPABASE] Erro ler:", e)
+    return None
+
+def supabase_salvar(chave, valor):
+    try:
+        # tenta atualizar, se não existir, cria
+        r = requests.patch(f"{SUPABASE_URL}/rest/v1/dados?chave=eq.{chave}", headers=SUPA_HEADERS, json={"valor": valor}, timeout=10)
+        if not r.ok or r.json() == []:
+            requests.post(f"{SUPABASE_URL}/rest/v1/dados", headers=SUPA_HEADERS, json={"chave": chave, "valor": valor}, timeout=10)
+    except Exception as e:
+        print("[SUPABASE] Erro salvar:", e)
+# ===== FIM SUPABASE =====
+
+
 load_dotenv()
 
 # ==========================================
@@ -109,44 +140,31 @@ IDM_MODEL = "cuuupid/idm-vton"
 # ==========================================
 
 def ler_json(caminho, padrao):
-
+    nome = os.path.basename(caminho).replace(".json", "")
+    dado_nuvem = supabase_ler(nome)
+    if dado_nuvem is not None:
+        return dado_nuvem
+    # se não tem na nuvem, tenta o arquivo local antigo
     if not os.path.exists(caminho):
         return padrao
-
     try:
-        with open(
-            caminho,
-            "r",
-            encoding="utf-8"
-        ) as arquivo:
-
+        with open(caminho, "r", encoding="utf-8") as arquivo:
             return json.load(arquivo)
-
     except Exception as erro:
-
         print("[JSON] Erro:", erro)
-
         return padrao
 
-
 def salvar_json(caminho, dados):
-
-    temporario = caminho + ".tmp"
-
-    with open(
-        temporario,
-        "w",
-        encoding="utf-8"
-    ) as arquivo:
-
-        json.dump(
-            dados,
-            arquivo,
-            ensure_ascii=False,
-            indent=4
-        )
-
-    os.replace(temporario, caminho)
+    nome = os.path.basename(caminho).replace(".json", "")
+    supabase_salvar(nome, dados)
+    # continua salvando local também, pra não quebrar nada
+    try:
+        temporario = caminho + ".tmp"
+        with open(temporario, "w", encoding="utf-8") as arquivo:
+            json.dump(dados, arquivo, ensure_ascii=False, indent=4)
+        os.replace(temporario, caminho)
+    except Exception as e:
+        print("[JSON] Erro salvar local:", e)
 
 
 def carregar_trabalhos():
