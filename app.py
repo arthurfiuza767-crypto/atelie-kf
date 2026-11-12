@@ -1819,7 +1819,6 @@ def adicionar_trabalho():
         flash("Formato de imagem inválido.", "erro")
 
         return redirect("/admin")
-
     nome_original = secure_filename(
         foto.filename
     )
@@ -1833,42 +1832,7 @@ def adicionar_trabalho():
     )
 
     # Manda pro Cloudinary em vez de salvar no Render
-try:
-    foto.seek(0)
-    resultado_cloud = cloudinary.uploader.upload(
-        foto,
-        folder="atelie-kf",
-        public_id=uuid.uuid4().hex
-    )
-    nome_arquivo = resultado_cloud.get("secure_url")
-    print("[CLOUDINARY] Enviado:", nome_arquivo)
-except Exception as e:
-    print("[CLOUDINARY] Erro, salvando local:", e)
-    foto.seek(0)
-    foto.save(
-        os.path.join(
-            UPLOAD_FOLDER,
-            nome_arquivo
-        )
-    )
-
-    lista = carregar_trabalhos()
-
-    lista.append({
-        "id": uuid.uuid4().hex[:10],
-        "arquivo": nome_arquivo,
-        "titulo": titulo,
-        "descricao": descricao
-    })
-
-    salvar_json(
-        TRABALHOS_FILE,
-        lista
-    )
-
-    flash("Trabalho adicionado!", "sucesso")
-
-    return redirect("/admin")
+ 
 
 
 # ==========================================
