@@ -1130,7 +1130,7 @@ def trabalhos():
             <article class="card trabalho">
 
                 <img
-                    src="{% if item.arquivo.startswith('http') %}{{ item.arquivo }}{% else %}/uploads/{{ item.arquivo }}{% endif %}"
+                    src="{item['arquivo'] if str(item['arquivo']).startswith('http') else '/uploads/' + str(item['arquivo'])}"
                     alt="{{ item.titulo }}">
 
                 <h3>{{ item.titulo }}</h3>
