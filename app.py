@@ -1622,13 +1622,6 @@ def admin():
     </section>
     """
 
-    mensagem = (
-              f"Oi, tudo bem, {nome}? 💛 Aqui é do KF Ateliê!\n\n"
-        f"Ai, me desculpa! 🥺 Infelizmente não vou conseguir te atender no dia {dia}, tive um imprevisto de saúde e vou precisar descansar um pouquinho.\n\n"
-        f"Mas não se preocupe, viu? A gente remarca! ✨\n"
-        f"Me fala um dia que fica bom para você que eu já deixo reservado na agenda, combinado? 🗓️💕\n\n"
-        f"Obrigada pela compreensão! 🙏"
-        )
     return pagina(
         "Painel Administrativo",
         conteudo,
@@ -1638,7 +1631,6 @@ def admin():
         bloqueados=bloqueados,
         hoje=date.today().isoformat(),
         horarios=HORARIOS,
-        mensagem=mensagem
     )
 
 # ==========================================
