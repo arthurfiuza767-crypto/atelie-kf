@@ -1849,6 +1849,14 @@ def adicionar_trabalho():
         )
 
         url_imagem = upload_result.get("secure_url")
+        trabalhos.append({
+            "titulo": titulo,
+            "descricao": descricao,
+            "imagem": url_imagem
+        })
+        salvar_trabalhos(trabalhos)
+        flash("Trabalho adicionado!", "sucesso")
+        return redirect("/admin")
 
     except Exception as e:
         print("[ERRO CLOUDINARY]", e)
