@@ -121,7 +121,7 @@ HORARIOS = [
 ]
 
 EXTENSOES_PERMITIDAS = {
-    "png", "jpg", "jpeg", "webp"
+    "png", "jpg", "jpeg", "webp", "heic", "heif", "avif"
 }
 
 REPLICATE_BASE = "https://api.replicate.com/v1"
@@ -1833,7 +1833,7 @@ def adicionar_trabalho():
     )[1].lower()
 
     nome_arquivo = (
-        uuid.uuid4().hex + "." + extensao
+        uuid.uuid4().hex + ".jpg"
     )
 
     # Manda pro Cloudinary em vez de salvar no Render
@@ -1847,10 +1847,12 @@ def adicionar_trabalho():
             api_secret=os.environ.get("CLOUDINARY_API_SECRET")
         )
 
+        foto.seek(0)
         upload_result = cloudinary.uploader.upload(
             foto,
             public_id=nome_arquivo.rsplit(".", 1)[0],
-            folder="kf_atelie"
+            folder="kf-atelie",
+            resource_type="image"
         )
 
         url_imagem = upload_result.get("secure_url")
