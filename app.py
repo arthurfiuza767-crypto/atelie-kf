@@ -1855,7 +1855,9 @@ def adicionar_trabalho():
             "descricao": descricao,
             "imagem": url_imagem
         })
-        salvar_trabalhos(lista)
+        import json
+        with open("trabalhos.json", "w", encoding="utf-8") as f:
+            json.dump(lista, f, ensure_ascii=False, indent=2)
         flash("Trabalho adicionado!", "sucesso")
         return redirect("/admin")
 
