@@ -1130,7 +1130,7 @@ def trabalhos():
             <article class="card trabalho">
 
                 <img
-                    src="/uploads/{{ item.arquivo }}"
+                    src="{% if item.arquivo.startswith('http') %}{{ item.arquivo }}{% else %}/uploads/{{ item.arquivo }}{% endif %}"
                     alt="{{ item.titulo }}">
 
                 <h3>{{ item.titulo }}</h3>
@@ -1832,6 +1832,19 @@ def adicionar_trabalho():
         uuid.uuid4().hex + "." + extensao
     )
 
+    # Manda pro Cloudinary em vez de salvar no Render
+try:
+    foto.seek(0)
+    resultado_cloud = cloudinary.uploader.upload(
+        foto,
+        folder="atelie-kf",
+        public_id=uuid.uuid4().hex
+    )
+    nome_arquivo = resultado_cloud.get("secure_url")
+    print("[CLOUDINARY] Enviado:", nome_arquivo)
+except Exception as e:
+    print("[CLOUDINARY] Erro, salvando local:", e)
+    foto.seek(0)
     foto.save(
         os.path.join(
             UPLOAD_FOLDER,
