@@ -1853,7 +1853,7 @@ def adicionar_trabalho():
         lista.append({
             "titulo": titulo,
             "descricao": descricao,
-            "imagem": url_imagem
+            "arquivo": url_imagem
         })
         import json
         with open("trabalhos.json", "w", encoding="utf-8") as f:
