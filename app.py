@@ -15,6 +15,33 @@ from flask import (
     send_from_directory
 )
 from werkzeug.utils import secure_filename
+
+# ===== CLOUDINARY - SÓ ADICIONAR, NÃO APAGAR NADA =====
+import cloudinary
+import cloudinary.uploader
+
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    secure=True
+)
+
+def enviar_para_cloudinary(imagem_base64):
+    # Se não tiver Cloudinary configurado, volta a imagem normal
+    if not os.getenv("CLOUDINARY_CLOUD_NAME"):
+        return imagem_base64
+    try:
+        resultado = cloudinary.uploader.upload(
+            imagem_base64,
+            folder="atelie-kf"
+        )
+        return resultado.get("secure_url", imagem_base64)
+    except Exception as e:
+        print("[CLOUDINARY] Erro:", e)
+        return imagem_base64
+# ===== FIM CLOUDINARY =====
+
 load_dotenv()
 
 # ==========================================
