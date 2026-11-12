@@ -1599,7 +1599,7 @@ def admin():
         <div class="agendamento">
 
             <img
-                src="/uploads/{{ item.arquivo }}"
+                src="{{ item.arquivo }}"
                 class="preview">
 
             <h3>{{ item.titulo }}</h3>
@@ -1864,13 +1864,12 @@ def adicionar_trabalho():
         url_imagem = upload_result.get("secure_url")
         lista = carregar_trabalhos()
         lista.append({
+            "id": uuid.uuid4().hex,
             "titulo": titulo,
             "descricao": descricao,
             "arquivo": url_imagem
         })
-        import json
-        with open("trabalhos.json", "w", encoding="utf-8") as f:
-            json.dump(lista, f, ensure_ascii=False, indent=2)
+        salvar_json(TRABALHOS_FILE, lista)
         flash("Trabalho adicionado!", "sucesso")
         return redirect("/admin")
 
@@ -1892,23 +1891,9 @@ def adicionar_trabalho():
 def excluir_trabalho(trabalho_id):
 
     lista = carregar_trabalhos()
-
-    removidos = [
-        item
-        for item in lista
-        if item["id"] == trabalho_id
-    ]
-
-    lista = [
-        item
-        for item in lista
-        if item["id"] != trabalho_id
-    ]
-
-    salvar_json(
-        TRABALHOS_FILE,
-        lista
-    )
+    removidos = [item for item in lista if str(item.get("id")) == str(trabalho_id)]
+    lista = [item for item in lista if str(item.get("id")) != str(trabalho_id)]
+    salvar_json(TRABALHOS_FILE, lista)
 
     for item in removidos:
 
