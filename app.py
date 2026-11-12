@@ -1623,12 +1623,13 @@ def admin():
     """
 
     mensagem = (
-        "Oi, tudo bem? Aqui é do KF Ateliê, "
-        "infelizmente não vou conseguir te atender "
-        "nesse dia por um imprevisto de saúde. "
-        "Podemos remarcar? Me fala um dia que fica bom pra você!"
-    )
+              f"Oi, tudo bem, {nome}? 💛 Aqui é do KF Ateliê!\n\n"
+        f"Ai, me desculpa! 🥺 Infelizmente não vou conseguir te atender no dia {dia}, tive um imprevisto de saúde e vou precisar descansar um pouquinho.\n\n"
+        f"Mas não se preocupe, viu? A gente remarca! ✨\n"
+        f"Me fala um dia que fica bom para você que eu já deixo reservado na agenda, combinado? 🗓️💕\n\n"
+        f"Obrigada pela compreensão! 🙏"
 
+    )
     return pagina(
         "Painel Administrativo",
         conteudo,
