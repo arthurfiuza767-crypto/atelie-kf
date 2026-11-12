@@ -1832,9 +1832,30 @@ def adicionar_trabalho():
     )
 
     # Manda pro Cloudinary em vez de salvar no Render
+    try:
+        import cloudinary
+        import cloudinary.uploader
+
+        cloudinary.config(
+            cloud_name=CLOUDINARY_CLOUD_NAME,
+            api_key=CLOUDINARY_API_KEY,
+            api_secret=CLOUDINARY_API_SECRET
+        )
+
+        upload_result = cloudinary.uploader.upload(
+            foto,
+            public_id=nome_arquivo.rsplit(".", 1)[0],
+            folder="kf_atelie"
+        )
+
+        url_imagem = upload_result.get("secure_url")
+
+    except Exception as e:
+        print("[ERRO CLOUDINARY]", e)
+        flash("Erro ao enviar a foto para o Cloudinary.", "erro")
+        return redirect("/admin")
+
  
-
-
 # ==========================================
 # EXCLUIR TRABALHO
 # ==========================================
