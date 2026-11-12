@@ -602,13 +602,13 @@ label {
 
 .trabalho img {
     width: 100%;
-    height: 230px;
-    object-fit: cover;
+    height: auto;
+    object-fit: contain;
     border-radius: 10px;
 }
 
 .trabalho {
-    overflow: hidden;
+    overflow: visible;
 }
 
 .flash {
