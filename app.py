@@ -4,19 +4,15 @@ import time
 import base64
 import uuid
 import requests
-
 from datetime import datetime, date
 from functools import wraps
-
 from dotenv import load_dotenv
-from flask import (
-    Flask, request, redirect, url_for,
-    session, flash, render_template_string,
-    send_from_directory
-)
+
+load_dotenv()  # TEM que ser antes de ler as chaves!
+
+from flask import Flask, request, redirect, url_for, session, flash, render_template_string, send_from_directory
 from werkzeug.utils import secure_filename
 
-# ===== CLOUDINARY - SÓ ADICIONAR, NÃO APAGAR NADA =====
 import cloudinary
 import cloudinary.uploader
 
@@ -28,23 +24,18 @@ cloudinary.config(
 )
 
 def enviar_para_cloudinary(imagem_base64):
-    # Se não tiver Cloudinary configurado, volta a imagem normal
     if not os.getenv("CLOUDINARY_CLOUD_NAME"):
         return imagem_base64
     try:
-        resultado = cloudinary.uploader.upload(
-            imagem_base64,
-            folder="atelie-kf"
-        )
+        resultado = cloudinary.uploader.upload(imagem_base64, folder="atelie-kf")
         return resultado.get("secure_url", imagem_base64)
     except Exception as e:
         print("[CLOUDINARY] Erro:", e)
         return imagem_base64
-# ===== FIM CLOUDINARY =====
 
-# ===== SUPABASE - SÓ ADICIONAR, NÃO APAGAR NADA =====
-SUPABASE_URL = os.getenv("SUPABASE_URL", "https://kmwvjjynbkhwgsprdfpr.supabase.co").rstrip("/")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "sb_publishable_7Iosub0LIp_VdCfkQ5wmCg_1XsMXZy_")
+# ===== SUPABASE =====
+SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
 
 SUPA_HEADERS = {
     "apikey": SUPABASE_KEY,
@@ -56,6 +47,7 @@ SUPA_HEADERS = {
 def supabase_ler(chave):
     try:
         r = requests.get(f"{SUPABASE_URL}/rest/v1/dados?chave=eq.{chave}&select=valor", headers=SUPA_HEADERS, timeout=10)
+        print("[SUPABASE] LER", chave, r.status_code, r.text[:200])
         if r.ok and r.json():
             return r.json()[0].get("valor")
     except Exception as e:
@@ -64,13 +56,16 @@ def supabase_ler(chave):
 
 def supabase_salvar(chave, valor):
     try:
-        # tenta atualizar, se não existir, cria
-        r = requests.patch(f"{SUPABASE_URL}/rest/v1/dados?chave=eq.{chave}", headers=SUPA_HEADERS, json={"valor": valor}, timeout=10)
-        if not r.ok or r.json() == []:
-            requests.post(f"{SUPABASE_URL}/rest/v1/dados", headers=SUPA_HEADERS, json={"chave": chave, "valor": valor}, timeout=10)
+        # upsert: cria se não existir, atualiza se existir
+        r = requests.post(
+            f"{SUPABASE_URL}/rest/v1/dados?on_conflict=chave",
+            headers={**SUPA_HEADERS, "Prefer": "resolution=merge-duplicates,return=representation"},
+            json={"chave": chave, "valor": valor},
+            timeout=15
+        )
+        print("[SUPABASE] SALVAR", chave, r.status_code, r.text[:300])
     except Exception as e:
         print("[SUPABASE] Erro salvar:", e)
-# ===== FIM SUPABASE =====
 
 
 load_dotenv()
