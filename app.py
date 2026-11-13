@@ -1512,9 +1512,9 @@ def admin():
             <p>📱 {{ item.whatsapp }}</p>
 
             <p>✂️ {{ item.servico }}</p>
-
+            
 {% set data_br = item.data[8:10] + "/" + item.data[5:7] + "/" + item.data[0:4] %}
-{% set texto = "Oi, tudo bem, " + item.nome + "? Aqui e do KF Atelie!\n\nAi, me desculpa! Infelizmente nao vou conseguir te atender no dia " + data_br + " as " + item.hora + ", tive um imprevisto de saude e vou precisar descansar um pouquinho.\n\nMas nao se preocupe, viu? A gente remarca!\nMe fala um dia que fica bom para voce que eu ja deixo reservado na agenda, combinado?\n\nObrigada pela compreensao!" %}
+{% set texto = "Oi, tudo bem, " + item.nome + "? Aqui e do KF Atelie! \n\nAi, me desculpa! Infelizmente nao vou conseguir te atender no dia " + data_br + " as " + item.hora + ", tive um imprevisto de saude e vou precisar cancelar. Podemos remarcar para outro dia? Me fala quando fica melhor pra voce!" %}
 <a class="botao whatsapp"
 target="_blank"
 href="https://wa.me/55{{ item.whatsapp }}?text={{ texto|urlencode }}">
