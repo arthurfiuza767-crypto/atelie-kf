@@ -2027,20 +2027,6 @@ def status_provador(job_id):
             "resultado": trabalho["resultado"],
             "erro": trabalho["erro"]
         })
-
-# ================= BACKUP LEVE =================
-@app.route("/admin/backup")
-def backup():
-    import zipfile, io
-    memoria = io.BytesIO()
-    with zipfile.ZipFile(memoria, "w") as z:
-        for nome_arquivo in ["agendamentos.json", "trabalhos.json", "bloqueados.json"]:
-            caminho = os.path.join(BASE, nome_arquivo)
-            if os.path.exists(caminho):
-                z.write(caminho, nome_arquivo)
-    memoria.seek(0)
-    return send_file(memoria, as_attachment=True, download_name="backup-kf-atelie.zip", mimetype="application/zip")
-
 if __name__ == "__main__":
 
     print("=" * 50)
