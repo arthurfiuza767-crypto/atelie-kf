@@ -542,8 +542,9 @@ def gerar_com_flux(prompt):
     print("[FLUX] Prompt traduzido:", prompt_final)
 
     resultado = replicate_run_by_version(
-    "black-forest-labs/flux-schnell", {"prompt": prompt_final, "aspect_ratio": "3:4"}
-)
+        "black-forest-labs/flux-schnell",
+        {"prompt": prompt_final, "aspect_ratio": "3:4"},
+    )
     return baixar_imagem_base64(primeira_url_saida(resultado))
 
 
@@ -638,13 +639,11 @@ def gerar_provador(foto_pessoa_base64, descricao):
     # Pausa curtinha para não dar erro 429
     time.sleep(8)
 
-    versao = get_idm_version()
-
     resultado = None
     for tentativa in range(3):
         try:
             resultado = replicate_run_by_version(
-                versao,
+                "cuuupid/idm-vton",
                 {
                     "garm_img": roupa,
                     "human_img": foto_pessoa_base64,
