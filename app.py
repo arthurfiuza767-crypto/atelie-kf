@@ -540,9 +540,10 @@ def gerar_com_flux(prompt):
     # TRADUZ AQUI - cliente fala português, Flux recebe inglês
     prompt_final, _ = montar_prompt_corrigido(prompt)
     print("[FLUX] Prompt traduzido:", prompt_final)
-    versao = get_flux_version()
-    resultado = replicate_run_by_version(versao, {"prompt": prompt_final})
 
+    resultado = replicate_run_by_version(
+    "black-forest-labs/flux-schnell", {"prompt": prompt_final, "aspect_ratio": "3:4"}
+)
     return baixar_imagem_base64(primeira_url_saida(resultado))
 
 
