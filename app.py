@@ -137,7 +137,8 @@ def tirar_acento(t):
 def montar_prompt_corrigido(descricao_pt):
     t = tirar_acento(descricao_pt.lower())
     desc = t
-    D = [
+   D = [
+     # TECNICAS DE COSTURA - DO SEU ANTIGO, NAO APAGAR
      ("tomara que caia","STRAPLESS tube top, no straps"),
      ("manga longa","LONG SLEEVE"),("manga curta","SHORT SLEEVE"),
      ("manga bufante","PUFFY SLEEVE"),("decote em v","V NECKLINE"),
@@ -148,60 +149,97 @@ def montar_prompt_corrigido(descricao_pt):
      ("gode","FLARED CIRCLE SKIRT, with volume"),
      ("babado","RUFFLE"),("vies","BIAS TAPE FINISH"),
      ("pence","FITTED AT WAIST"),("cos","HIGH WAISTBAND"),
-     ("nesga","SIDE SLIT"),("fenda","SIDE SLIT"),
-     ("pregueado","PLEATED"),("plissado","PLEATED"),
-     ("drapeado","DRAPED FABRIC"),("forro","LINED, double fabric"),
-     ("sem manga","SLEEVELESS"),("sem alca","STRAPLESS"),
-     ("acinturado","FITTED AT WAIST"),("transpassado","WRAP STYLE"),
-     ("manga","SLEEVE"),
 
+     # CORES
+     ("vinho","MARSALA BURGUNDY"),("marsala","MARSALA BURGUNDY"),("bordo","MARSALA BURGUNDY"),
+     ("mostarda","MUSTARD YELLOW"),("verde oliva","OLIVE GREEN"),("verde musgo","MOSS GREEN"),
+     ("verde menta","MINT GREEN"),("rosa bebe","BABY PINK"),("rosa choque","HOT PINK"),
+     ("nude","NUDE BEIGE"),("bege","BEIGE"),("marrom","BROWN"),("caramelo","CARAMEL BROWN"),
+     ("terracota","TERRACOTTA ORANGE"),("laranja","ORANGE"),("salmao","SALMON PINK"),
+     ("lilas","LILAC PURPLE"),("roxo","PURPLE"),("azul royal","ROYAL BLUE"),
+     ("azul marinho","NAVY BLUE"),("azul bebe","LIGHT BLUE"),("azul turquesa","TURQUOISE BLUE"),
+     ("azul petroleo","PETROL BLUE"),("cinza","GRAY"),("prata","SILVER"),
+     ("dourado","GOLD"),("ouro","GOLD"),("preto","BLACK"),("branco","WHITE"),
+     ("off white","OFF WHITE"),("creme","CREAM"),("vermelho","RED"),("amarelo","YELLOW"),
 
-("camurca","SUEDE"),("cetim","SATIN shiny"),
-     ("veludo","VELVET"),("renda","LACE"),("tule","TULLE"),
-     ("crepe","CREPE"),("seda","SILK"),("linho","LINEN"),
-     ("algodao","COTTON"),("malha","KNIT JERSEY"),
-     ("paete","SEQUIN"),("couro","LEATHER"),("courino","FAUX LEATHER"),
-     ("chiffon","CHIFFON"),("organza","ORGANZA"),("tafteta","TAFFETA"),
-     ("viscose","VISCOSE"),("jeans","DENIM"),("alfaiataria","TAILORING FABRIC"),
-     ("branco","WHITE"),("preto","BLACK"),
-     ("marsala","MARSALA BURGUNDY"),("vinho","MARSALA BURGUNDY"),
-     ("bordo","MARSALA BURGUNDY"),("vermelho","RED"),
-     ("rosa bebe","LIGHT PINK"),("rosa choque","HOT PINK"),("rosa","PINK"),
-     ("nude","NUDE BEIGE"),("bege","BEIGE"),("champagne","CHAMPAGNE"),
-     ("marrom","BROWN"),("caramelo","CARAMEL"),("mostarda","MUSTARD YELLOW"),
-     ("amarelo","YELLOW"),("dourado","GOLD"),("laranja","ORANGE"),
-     ("verde oliva","OLIVE GREEN"),("verde menta","MINT GREEN"),
-     ("verde esmeralda","EMERALD GREEN"),("verde","GREEN"),
-     ("azul marinho","NAVY BLUE"),("azul bebe","LIGHT BLUE"),
-     ("azul royal","ROYAL BLUE"),("azul","BLUE"),("turquesa","TURQUOISE"),
-     ("roxo","PURPLE"),("lilas","LILAC"),("cinza","GRAY"),("prata","SILVER"),
-     ("floral","FLORAL PATTERN"),("listrado","STRIPED"),("xadrez","PLAID"),
-     ("bolas pretas","BLACK POLKA DOTS"),("bolas brancas","WHITE POLKA DOTS"),
-     ("terno","MEN'S TAILORED SUIT, blazer and pants"),
-     ("blazer","BLAZER"),("vestido","WOMEN'S ELEGANT DRESS"),
-     ("sutia","WOMEN'S BRA"),("blusa","WOMEN'S BLOUSE"),("camisa","SHIRT"),
-     ("calca","PANTS"),("saia","SKIRT"),("macacao","JUMPSUIT"),
-     ("conjunto","MATCHING SET"),("cropped","CROPPED TOP"),
-     ("midi","MIDI LENGTH"),("longo","LONG LENGTH"),("curto","SHORT LENGTH"),
-    ]
-    D = sorted(D, key=lambda x: len(x[0]), reverse=True)
-    for pt,en in D:
+     # TECIDOS
+     ("cetim","SATIN FABRIC"),("veludo","VELVET FABRIC"),("renda","LACE FABRIC"),
+     ("tule","TULLE FABRIC"),("linho","LINEN FABRIC"),("algodao","COTTON FABRIC"),
+     ("crepe","CREPE FABRIC"),("viscose","VISCOSE FABRIC"),("tricoline","COTTON POPLIN"),
+     ("jeans","DENIM FABRIC"),("couro","LEATHER"),("paete","SEQUIN FABRIC"),
+     ("lantejoula","SEQUIN"),("chiffon","CHIFFON FABRIC"),("organza","ORGANZA FABRIC"),
+     ("malha","KNIT FABRIC"),("moletom","SWEATSHIRT FABRIC"),
+
+     # DECOTES / GOLAS / MANGAS
+     ("ombro a ombro","OFF SHOULDER"),("ciganinha","OFF SHOULDER RUFFLED"),
+     ("decote coracao","SWEETHEART NECKLINE"),("decote halter","HALTER NECKLINE"),
+     ("frente unica","HALTER NECKLINE"),("gola mandarim","MANDARIN COLLAR"),
+     ("gola canoa","BOAT NECKLINE"),("gola v","V NECKLINE"),("gola redonda","ROUND NECKLINE"),
+     ("gola quadrada","SQUARE NECKLINE"),("decote quadrado","SQUARE NECKLINE"),
+     ("manga morcego","BATWING SLEEVE"),("manga 3/4","THREE QUARTER SLEEVE"),
+     ("manga regata","SLEEVELESS"),("sem manga","SLEEVELESS"),
+     ("alca fina","SPAGHETTI STRAP"),("alcinha","SPAGHETTI STRAP"),
+
+     # MODELOS
+     ("sereia","MERMAID FIT"),("vestido sereia","MERMAID DRESS"),("saia sereia","MERMAID SKIRT"),
+     ("envelope","WRAP STYLE"),("transpassado","WRAP STYLE"),("evase","A LINE"),
+     ("princesa","A LINE PRINCESS"),("fenda","SLIT"),("fenda alta","HIGH SLIT"),
+     ("acinturado","FITTED WAIST"),("cintura alta","HIGH WAIST"),("cintura baixa","LOW WAIST"),
+     ("costas abertas","OPEN BACK"),("costas nuas","OPEN BACK"),("justo","BODYCON FIT"),
+     ("largo","OVERSIZED LOOSE FIT"),("soltinho","LOOSE FLOWY FIT"),("curto","SHORT LENGTH"),
+     ("longo","LONG LENGTH"),("midi","MIDI LENGTH"),("mini","MINI LENGTH"),
+     ("rodado","FULL CIRCLE SKIRT"),("plissado","PLEATED"),("pregueado","PLEATED"),
+
+     # PECAS
+     ("vestido","DRESS"),("saia","SKIRT"),("blusa","BLOUSE"),("calca","PANTS"),
+     ("short","SHORTS"),("macacao","JUMPSUIT"),("terno","SUIT"),("blazer","BLAZER"),
+     ("colete","VEST"),("camisa social","DRESS SHIRT"),("camisa","SHIRT"),
+     ("cropped","CROPPED TOP"),("top","TOP"),
+
+     # ESTAMPAS
+     ("bolas","POLKA DOTS"),("bolinhas","POLKA DOTS"),("listras","STRIPES"),
+     ("xadrez","PLAID"),("floral","FLORAL PRINT"),("flores","FLORAL PRINT"),
+     ("oncinha","LEOPARD PRINT"),("zebra","ZEBRA PRINT"),("poa","POLKA DOTS"),
+
+     # FESTA / NOIVA
+     ("formatura","FORMAL EVENING GOWN, graduation prom dress, elegant"),
+     ("festa","FORMAL EVENING GOWN, party dress, elegant"),
+     ("vestido de festa","FORMAL EVENING GOWN, elegant party dress"),
+     ("noiva","BRIDAL GOWN, white wedding dress, elegant"),
+     ("vestido de noiva","BRIDAL GOWN, white wedding dress"),
+     ("casamento","WEDDING GOWN, elegant"),
+     ("madrinha","BRIDESMAID DRESS, elegant formal dress"),
+     ("madrinha de casamento","BRIDESMAID DRESS, elegant"),
+     ("mae da noiva","MOTHER OF THE BRIDE DRESS, elegant formal"),
+     ("mae do noivo","MOTHER OF THE GROOM DRESS, elegant formal"),
+     ("daminha","FLOWER GIRL DRESS, little girl princess dress"),
+     ("debutante","DEBUTANTE BALL GOWN, princess dress"),
+     ("15 anos","QUINCEANERA BALL GOWN, princess dress, voluminous"),
+     ("xv anos","QUINCEANERA BALL GOWN, princess dress"),
+     ("gala","GALA EVENING GOWN, luxurious"),("baile","BALL GOWN, formal"),
+     ("vestido princesa","PRINCESS BALL GOWN, voluminous skirt"),
+     ("vestido de princesa","PRINCESS BALL GOWN, voluminous skirt"),
+     ("cauda","LONG TRAIN, trailing fabric"),("com cauda","WITH LONG TRAIN"),
+     ("veu","WITH VEIL"),("com veu","WITH VEIL"),
+]
+D = sorted(D, key=lambda x: len(x[0]), reverse=True)
+for pt,en in D:
         desc = desc.replace(pt,en)
-    trava = ""
-    if "branco" in t and "bola" in t:
+trava = ""
+if "branco" in t and "bola" in t:
         trava = "WHITE base with BLACK polka dots, NO black dress"
-    elif "preto" in t and "bola" in t:
+elif "preto" in t and "bola" in t:
         trava = "BLACK base with WHITE polka dots, NO white dress"
-    prompt_final = f"Product photo, {desc}, {trava}, full garment, studio light, gray background, fashion catalog, high quality, NO animal, NO monster, NO fruit, NO person, only garment"
-    if "terno" in t or "blazer" in t:
+prompt_final = f"Product photo, {desc}, {trava}, full garment, studio light, gray background, fashion catalog, high quality, NO animal, NO monster, NO fruit, NO person, only garment"
+if "terno" in t or "blazer" in t:
         cat = "upper_body"
-    elif "bojo" in t or "sutia" in t or "cropped" in t or "blusa" in t:
+elif "bojo" in t or "sutia" in t or "cropped" in t or "blusa" in t:
         cat = "tops"
-    elif "calca" in t:
+elif "calca" in t:
         cat = "lower_body"
-    else:
+else:
         cat = "dresses"
-    return prompt_final, cat
+return prompt_final, cat
 # ==========================================
 # ARQUIVOS JSON
 # ==========================================
