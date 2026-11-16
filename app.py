@@ -130,6 +130,78 @@ FLUX_MODEL = "black-forest-labs/flux-schnell"
 
 IDM_MODEL = "cuuupid/idm-vton"
 
+import unicodedata
+def tirar_acento(t):
+    return ''.join(c for c in unicodedata.normalize('NFD', t) if unicodedata.category(c) != 'Mn')
+
+def montar_prompt_corrigido(descricao_pt):
+    t = tirar_acento(descricao_pt.lower())
+    desc = t
+    D = [
+     ("tomara que caia","STRAPLESS tube top, no straps"),
+     ("manga longa","LONG SLEEVE"),("manga curta","SHORT SLEEVE"),
+     ("manga bufante","PUFFY SLEEVE"),("decote em v","V NECKLINE"),
+     ("decote redondo","ROUND NECKLINE"),("gola alta","HIGH NECK"),
+     ("bojo","PADDED BRA CUP, with foam, push-up"),
+     ("com espuma","WITH FOAM PADDING, push-up"),
+     ("pala","YOKE DETAIL ON SHOULDER"),("cava","SLEEVELESS, armhole"),
+     ("gode","FLARED CIRCLE SKIRT, with volume"),
+     ("babado","RUFFLE"),("vies","BIAS TAPE FINISH"),
+     ("pence","FITTED AT WAIST"),("cos","HIGH WAISTBAND"),
+     ("nesga","SIDE SLIT"),("fenda","SIDE SLIT"),
+     ("pregueado","PLEATED"),("plissado","PLEATED"),
+     ("drapeado","DRAPED FABRIC"),("forro","LINED, double fabric"),
+     ("sem manga","SLEEVELESS"),("sem alca","STRAPLESS"),
+     ("acinturado","FITTED AT WAIST"),("transpassado","WRAP STYLE"),
+     ("manga","SLEEVE"),
+
+
+("camurca","SUEDE"),("cetim","SATIN shiny"),
+     ("veludo","VELVET"),("renda","LACE"),("tule","TULLE"),
+     ("crepe","CREPE"),("seda","SILK"),("linho","LINEN"),
+     ("algodao","COTTON"),("malha","KNIT JERSEY"),
+     ("paete","SEQUIN"),("couro","LEATHER"),("courino","FAUX LEATHER"),
+     ("chiffon","CHIFFON"),("organza","ORGANZA"),("tafteta","TAFFETA"),
+     ("viscose","VISCOSE"),("jeans","DENIM"),("alfaiataria","TAILORING FABRIC"),
+     ("branco","WHITE"),("preto","BLACK"),
+     ("marsala","MARSALA BURGUNDY"),("vinho","MARSALA BURGUNDY"),
+     ("bordo","MARSALA BURGUNDY"),("vermelho","RED"),
+     ("rosa bebe","LIGHT PINK"),("rosa choque","HOT PINK"),("rosa","PINK"),
+     ("nude","NUDE BEIGE"),("bege","BEIGE"),("champagne","CHAMPAGNE"),
+     ("marrom","BROWN"),("caramelo","CARAMEL"),("mostarda","MUSTARD YELLOW"),
+     ("amarelo","YELLOW"),("dourado","GOLD"),("laranja","ORANGE"),
+     ("verde oliva","OLIVE GREEN"),("verde menta","MINT GREEN"),
+     ("verde esmeralda","EMERALD GREEN"),("verde","GREEN"),
+     ("azul marinho","NAVY BLUE"),("azul bebe","LIGHT BLUE"),
+     ("azul royal","ROYAL BLUE"),("azul","BLUE"),("turquesa","TURQUOISE"),
+     ("roxo","PURPLE"),("lilas","LILAC"),("cinza","GRAY"),("prata","SILVER"),
+     ("floral","FLORAL PATTERN"),("listrado","STRIPED"),("xadrez","PLAID"),
+     ("bolas pretas","BLACK POLKA DOTS"),("bolas brancas","WHITE POLKA DOTS"),
+     ("terno","MEN'S TAILORED SUIT, blazer and pants"),
+     ("blazer","BLAZER"),("vestido","WOMEN'S ELEGANT DRESS"),
+     ("sutia","WOMEN'S BRA"),("blusa","WOMEN'S BLOUSE"),("camisa","SHIRT"),
+     ("calca","PANTS"),("saia","SKIRT"),("macacao","JUMPSUIT"),
+     ("conjunto","MATCHING SET"),("cropped","CROPPED TOP"),
+     ("midi","MIDI LENGTH"),("longo","LONG LENGTH"),("curto","SHORT LENGTH"),
+    ]
+    D = sorted(D, key=lambda x: len(x[0]), reverse=True)
+    for pt,en in D:
+        desc = desc.replace(pt,en)
+    trava = ""
+    if "branco" in t and "bola" in t:
+        trava = "WHITE base with BLACK polka dots, NO black dress"
+    elif "preto" in t and "bola" in t:
+        trava = "BLACK base with WHITE polka dots, NO white dress"
+    prompt_final = f"Product photo, {desc}, {trava}, full garment, studio light, gray background, fashion catalog, high quality, NO animal, NO monster, NO fruit, NO person, only garment"
+    if "terno" in t or "blazer" in t:
+        cat = "upper_body"
+    elif "bojo" in t or "sutia" in t or "cropped" in t or "blusa" in t:
+        cat = "tops"
+    elif "calca" in t:
+        cat = "lower_body"
+    else:
+        cat = "dresses"
+    return prompt_final, cat
 # ==========================================
 # ARQUIVOS JSON
 # ==========================================
@@ -390,14 +462,14 @@ def baixar_imagem_base64(url):
 
 
 def gerar_com_flux(prompt):
-
     print("[FLUX] Iniciando...")
-
+    # TRADUZ AQUI - cliente fala português, Flux recebe inglês
+    prompt_final, _ = montar_prompt_corrigido(prompt)
+    print("[FLUX] Prompt traduzido:", prompt_final)
     versao = get_flux_version()
-
     resultado = replicate_run_by_version(
         versao,
-        {"prompt": prompt}
+        {"prompt": prompt_final}
     )
 
     return baixar_imagem_base64(
