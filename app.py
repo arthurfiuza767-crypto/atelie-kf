@@ -10,7 +10,16 @@ from dotenv import load_dotenv
 
 load_dotenv()  # TEM que ser antes de ler as chaves!
 
-from flask import Flask, request, redirect, url_for, session, flash, render_template_string, send_from_directory
+from flask import (
+    Flask,
+    request,
+    redirect,
+    url_for,
+    session,
+    flash,
+    render_template_string,
+    send_from_directory,
+)
 from werkzeug.utils import secure_filename
 
 import cloudinary
@@ -20,8 +29,9 @@ cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
     api_key=os.getenv("CLOUDINARY_API_KEY"),
     api_secret=os.getenv("CLOUDINARY_API_SECRET"),
-    secure=True
+    secure=True,
 )
+
 
 def enviar_para_cloudinary(imagem_base64):
     if not os.getenv("CLOUDINARY_CLOUD_NAME"):
@@ -33,6 +43,7 @@ def enviar_para_cloudinary(imagem_base64):
         print("[CLOUDINARY] Erro:", e)
         return imagem_base64
 
+
 # ===== SUPABASE =====
 SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
@@ -41,12 +52,17 @@ SUPA_HEADERS = {
     "apikey": SUPABASE_KEY,
     "Authorization": f"Bearer {SUPABASE_KEY}",
     "Content-Type": "application/json",
-    "Prefer": "return=representation"
+    "Prefer": "return=representation",
 }
+
 
 def supabase_ler(chave):
     try:
-        r = requests.get(f"{SUPABASE_URL}/rest/v1/dados?chave=eq.{chave}&select=valor", headers=SUPA_HEADERS, timeout=10)
+        r = requests.get(
+            f"{SUPABASE_URL}/rest/v1/dados?chave=eq.{chave}&select=valor",
+            headers=SUPA_HEADERS,
+            timeout=10,
+        )
         print("[SUPABASE] LER", chave, r.status_code, r.text[:200])
         if r.ok and r.json():
             return r.json()[0].get("valor")
@@ -54,14 +70,18 @@ def supabase_ler(chave):
         print("[SUPABASE] Erro ler:", e)
     return None
 
+
 def supabase_salvar(chave, valor):
     try:
         # upsert: cria se não existir, atualiza se existir
         r = requests.post(
             f"{SUPABASE_URL}/rest/v1/dados?on_conflict=chave",
-            headers={**SUPA_HEADERS, "Prefer": "resolution=merge-duplicates,return=representation"},
+            headers={
+                **SUPA_HEADERS,
+                "Prefer": "resolution=merge-duplicates,return=representation",
+            },
             json={"chave": chave, "valor": valor},
-            timeout=15
+            timeout=15,
         )
         print("[SUPABASE] SALVAR", chave, r.status_code, r.text[:300])
     except Exception as e:
@@ -78,36 +98,21 @@ load_dotenv()
 
 app = Flask(__name__)
 
-app.secret_key = os.getenv(
-    "FLASK_SECRET_KEY",
-    "chave-temporaria-local"
-)
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "chave-temporaria-local")
 
 SENHA_ADMIN = os.getenv("SENHA_ADMIN", "")
 
-REPLICATE_API_TOKEN = os.getenv(
-    "REPLICATE_API_TOKEN", ""
-).strip()
+REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN", "").strip()
 
-BASE_DIR = os.path.dirname(
-    os.path.abspath(__file__)
-)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-UPLOAD_FOLDER = os.path.join(
-    BASE_DIR, "uploads"
-)
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 
-TRABALHOS_FILE = os.path.join(
-    BASE_DIR, "trabalhos.json"
-)
+TRABALHOS_FILE = os.path.join(BASE_DIR, "trabalhos.json")
 
-AGENDAMENTOS_FILE = os.path.join(
-    BASE_DIR, "agendamentos.json"
-)
+AGENDAMENTOS_FILE = os.path.join(BASE_DIR, "agendamentos.json")
 
-DIAS_BLOQUEADOS_FILE = os.path.join(
-    BASE_DIR, "dias_bloqueados.json"
-)
+DIAS_BLOQUEADOS_FILE = os.path.join(BASE_DIR, "dias_bloqueados.json")
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -120,9 +125,7 @@ HORARIOS = [
     if not (hora == 21 and minuto > 0)
 ]
 
-EXTENSOES_PERMITIDAS = {
-    "png", "jpg", "jpeg", "webp", "heic", "heif", "avif"
-}
+EXTENSOES_PERMITIDAS = {"png", "jpg", "jpeg", "webp", "heic", "heif", "avif"}
 
 REPLICATE_BASE = "https://api.replicate.com/v1"
 
@@ -131,118 +134,202 @@ FLUX_MODEL = "black-forest-labs/flux-schnell"
 IDM_MODEL = "cuuupid/idm-vton"
 
 import unicodedata
+
+
 def tirar_acento(t):
-    return ''.join(c for c in unicodedata.normalize('NFD', t) if unicodedata.category(c) != 'Mn')
+    return "".join(
+        c for c in unicodedata.normalize("NFD", t) if unicodedata.category(c) != "Mn"
+    )
+
 
 def montar_prompt_corrigido(descricao_pt):
     t = tirar_acento(descricao_pt.lower())
     desc = t
-   D = [
-     # TECNICAS DE COSTURA - DO SEU ANTIGO, NAO APAGAR
-     ("tomara que caia","STRAPLESS tube top, no straps"),
-     ("manga longa","LONG SLEEVE"),("manga curta","SHORT SLEEVE"),
-     ("manga bufante","PUFFY SLEEVE"),("decote em v","V NECKLINE"),
-     ("decote redondo","ROUND NECKLINE"),("gola alta","HIGH NECK"),
-     ("bojo","PADDED BRA CUP, with foam, push-up"),
-     ("com espuma","WITH FOAM PADDING, push-up"),
-     ("pala","YOKE DETAIL ON SHOULDER"),("cava","SLEEVELESS, armhole"),
-     ("gode","FLARED CIRCLE SKIRT, with volume"),
-     ("babado","RUFFLE"),("vies","BIAS TAPE FINISH"),
-     ("pence","FITTED AT WAIST"),("cos","HIGH WAISTBAND"),
+    D = [
+        # TECNICAS DE COSTURA - DO SEU ANTIGO, NAO APAGAR
+        ("tomara que caia", "STRAPLESS tube top, no straps"),
+        ("manga longa", "LONG SLEEVE"),
+        ("manga curta", "SHORT SLEEVE"),
+        ("manga bufante", "PUFFY SLEEVE"),
+        ("decote em v", "V NECKLINE"),
+        ("decote redondo", "ROUND NECKLINE"),
+        ("gola alta", "HIGH NECK"),
+        ("bojo", "PADDED BRA CUP, with foam, push-up"),
+        ("com espuma", "WITH FOAM PADDING, push-up"),
+        ("pala", "YOKE DETAIL ON SHOULDER"),
+        ("cava", "SLEEVELESS, armhole"),
+        ("gode", "FLARED CIRCLE SKIRT, with volume"),
+        ("babado", "RUFFLE"),
+        ("vies", "BIAS TAPE FINISH"),
+        ("pence", "FITTED AT WAIST"),
+        ("cos", "HIGH WAISTBAND"),
+        # CORES
+        ("vinho", "MARSALA BURGUNDY"),
+        ("marsala", "MARSALA BURGUNDY"),
+        ("bordo", "MARSALA BURGUNDY"),
+        ("mostarda", "MUSTARD YELLOW"),
+        ("verde oliva", "OLIVE GREEN"),
+        ("verde musgo", "MOSS GREEN"),
+        ("verde menta", "MINT GREEN"),
+        ("rosa bebe", "BABY PINK"),
+        ("rosa choque", "HOT PINK"),
+        ("nude", "NUDE BEIGE"),
+        ("bege", "BEIGE"),
+        ("marrom", "BROWN"),
+        ("caramelo", "CARAMEL BROWN"),
+        ("terracota", "TERRACOTTA ORANGE"),
+        ("laranja", "ORANGE"),
+        ("salmao", "SALMON PINK"),
+        ("lilas", "LILAC PURPLE"),
+        ("roxo", "PURPLE"),
+        ("azul royal", "ROYAL BLUE"),
+        ("azul marinho", "NAVY BLUE"),
+        ("azul bebe", "LIGHT BLUE"),
+        ("azul turquesa", "TURQUOISE BLUE"),
+        ("azul petroleo", "PETROL BLUE"),
+        ("cinza", "GRAY"),
+        ("prata", "SILVER"),
+        ("dourado", "GOLD"),
+        ("ouro", "GOLD"),
+        ("preto", "BLACK"),
+        ("branco", "WHITE"),
+        ("off white", "OFF WHITE"),
+        ("creme", "CREAM"),
+        ("vermelho", "RED"),
+        ("amarelo", "YELLOW"),
+        # TECIDOS
+        ("cetim", "SATIN FABRIC"),
+        ("veludo", "VELVET FABRIC"),
+        ("renda", "LACE FABRIC"),
+        ("tule", "TULLE FABRIC"),
+        ("linho", "LINEN FABRIC"),
+        ("algodao", "COTTON FABRIC"),
+        ("crepe", "CREPE FABRIC"),
+        ("viscose", "VISCOSE FABRIC"),
+        ("tricoline", "COTTON POPLIN"),
+        ("jeans", "DENIM FABRIC"),
+        ("couro", "LEATHER"),
+        ("paete", "SEQUIN FABRIC"),
+        ("lantejoula", "SEQUIN"),
+        ("chiffon", "CHIFFON FABRIC"),
+        ("organza", "ORGANZA FABRIC"),
+        ("malha", "KNIT FABRIC"),
+        ("moletom", "SWEATSHIRT FABRIC"),
+        # DECOTES / GOLAS / MANGAS
+        ("ombro a ombro", "OFF SHOULDER"),
+        ("ciganinha", "OFF SHOULDER RUFFLED"),
+        ("decote coracao", "SWEETHEART NECKLINE"),
+        ("decote halter", "HALTER NECKLINE"),
+        ("frente unica", "HALTER NECKLINE"),
+        ("gola mandarim", "MANDARIN COLLAR"),
+        ("gola canoa", "BOAT NECKLINE"),
+        ("gola v", "V NECKLINE"),
+        ("gola redonda", "ROUND NECKLINE"),
+        ("gola quadrada", "SQUARE NECKLINE"),
+        ("decote quadrado", "SQUARE NECKLINE"),
+        ("manga morcego", "BATWING SLEEVE"),
+        ("manga 3/4", "THREE QUARTER SLEEVE"),
+        ("manga regata", "SLEEVELESS"),
+        ("sem manga", "SLEEVELESS"),
+        ("alca fina", "SPAGHETTI STRAP"),
+        ("alcinha", "SPAGHETTI STRAP"),
+        # MODELOS
+        ("sereia", "MERMAID FIT"),
+        ("vestido sereia", "MERMAID DRESS"),
+        ("saia sereia", "MERMAID SKIRT"),
+        ("envelope", "WRAP STYLE"),
+        ("transpassado", "WRAP STYLE"),
+        ("evase", "A LINE"),
+        ("princesa", "A LINE PRINCESS"),
+        ("fenda", "SLIT"),
+        ("fenda alta", "HIGH SLIT"),
+        ("acinturado", "FITTED WAIST"),
+        ("cintura alta", "HIGH WAIST"),
+        ("cintura baixa", "LOW WAIST"),
+        ("costas abertas", "OPEN BACK"),
+        ("costas nuas", "OPEN BACK"),
+        ("justo", "BODYCON FIT"),
+        ("largo", "OVERSIZED LOOSE FIT"),
+        ("soltinho", "LOOSE FLOWY FIT"),
+        ("curto", "SHORT LENGTH"),
+        ("longo", "LONG LENGTH"),
+        ("midi", "MIDI LENGTH"),
+        ("mini", "MINI LENGTH"),
+        ("rodado", "FULL CIRCLE SKIRT"),
+        ("plissado", "PLEATED"),
+        ("pregueado", "PLEATED"),
+        # PECAS
+        ("vestido", "DRESS"),
+        ("saia", "SKIRT"),
+        ("blusa", "BLOUSE"),
+        ("calca", "PANTS"),
+        ("short", "SHORTS"),
+        ("macacao", "JUMPSUIT"),
+        ("terno", "SUIT"),
+        ("blazer", "BLAZER"),
+        ("colete", "VEST"),
+        ("camisa social", "DRESS SHIRT"),
+        ("camisa", "SHIRT"),
+        ("cropped", "CROPPED TOP"),
+        ("top", "TOP"),
+        # ESTAMPAS
+        ("bolas", "POLKA DOTS"),
+        ("bolinhas", "POLKA DOTS"),
+        ("listras", "STRIPES"),
+        ("xadrez", "PLAID"),
+        ("floral", "FLORAL PRINT"),
+        ("flores", "FLORAL PRINT"),
+        ("oncinha", "LEOPARD PRINT"),
+        ("zebra", "ZEBRA PRINT"),
+        ("poa", "POLKA DOTS"),
+        # FESTA / NOIVA
+        ("formatura", "FORMAL EVENING GOWN, graduation prom dress, elegant"),
+        ("festa", "FORMAL EVENING GOWN, party dress, elegant"),
+        ("vestido de festa", "FORMAL EVENING GOWN, elegant party dress"),
+        ("noiva", "BRIDAL GOWN, white wedding dress, elegant"),
+        ("vestido de noiva", "BRIDAL GOWN, white wedding dress"),
+        ("casamento", "WEDDING GOWN, elegant"),
+        ("madrinha", "BRIDESMAID DRESS, elegant formal dress"),
+        ("madrinha de casamento", "BRIDESMAID DRESS, elegant"),
+        ("mae da noiva", "MOTHER OF THE BRIDE DRESS, elegant formal"),
+        ("mae do noivo", "MOTHER OF THE GROOM DRESS, elegant formal"),
+        ("daminha", "FLOWER GIRL DRESS, little girl princess dress"),
+        ("debutante", "DEBUTANTE BALL GOWN, princess dress"),
+        ("15 anos", "QUINCEANERA BALL GOWN, princess dress, voluminous"),
+        ("xv anos", "QUINCEANERA BALL GOWN, princess dress"),
+        ("gala", "GALA EVENING GOWN, luxurious"),
+        ("baile", "BALL GOWN, formal"),
+        ("vestido princesa", "PRINCESS BALL GOWN, voluminous skirt"),
+        ("vestido de princesa", "PRINCESS BALL GOWN, voluminous skirt"),
+        ("cauda", "LONG TRAIN, trailing fabric"),
+        ("com cauda", "WITH LONG TRAIN"),
+        ("veu", "WITH VEIL"),
+        ("com veu", "WITH VEIL"),
+    ]
 
-     # CORES
-     ("vinho","MARSALA BURGUNDY"),("marsala","MARSALA BURGUNDY"),("bordo","MARSALA BURGUNDY"),
-     ("mostarda","MUSTARD YELLOW"),("verde oliva","OLIVE GREEN"),("verde musgo","MOSS GREEN"),
-     ("verde menta","MINT GREEN"),("rosa bebe","BABY PINK"),("rosa choque","HOT PINK"),
-     ("nude","NUDE BEIGE"),("bege","BEIGE"),("marrom","BROWN"),("caramelo","CARAMEL BROWN"),
-     ("terracota","TERRACOTTA ORANGE"),("laranja","ORANGE"),("salmao","SALMON PINK"),
-     ("lilas","LILAC PURPLE"),("roxo","PURPLE"),("azul royal","ROYAL BLUE"),
-     ("azul marinho","NAVY BLUE"),("azul bebe","LIGHT BLUE"),("azul turquesa","TURQUOISE BLUE"),
-     ("azul petroleo","PETROL BLUE"),("cinza","GRAY"),("prata","SILVER"),
-     ("dourado","GOLD"),("ouro","GOLD"),("preto","BLACK"),("branco","WHITE"),
-     ("off white","OFF WHITE"),("creme","CREAM"),("vermelho","RED"),("amarelo","YELLOW"),
 
-     # TECIDOS
-     ("cetim","SATIN FABRIC"),("veludo","VELVET FABRIC"),("renda","LACE FABRIC"),
-     ("tule","TULLE FABRIC"),("linho","LINEN FABRIC"),("algodao","COTTON FABRIC"),
-     ("crepe","CREPE FABRIC"),("viscose","VISCOSE FABRIC"),("tricoline","COTTON POPLIN"),
-     ("jeans","DENIM FABRIC"),("couro","LEATHER"),("paete","SEQUIN FABRIC"),
-     ("lantejoula","SEQUIN"),("chiffon","CHIFFON FABRIC"),("organza","ORGANZA FABRIC"),
-     ("malha","KNIT FABRIC"),("moletom","SWEATSHIRT FABRIC"),
-
-     # DECOTES / GOLAS / MANGAS
-     ("ombro a ombro","OFF SHOULDER"),("ciganinha","OFF SHOULDER RUFFLED"),
-     ("decote coracao","SWEETHEART NECKLINE"),("decote halter","HALTER NECKLINE"),
-     ("frente unica","HALTER NECKLINE"),("gola mandarim","MANDARIN COLLAR"),
-     ("gola canoa","BOAT NECKLINE"),("gola v","V NECKLINE"),("gola redonda","ROUND NECKLINE"),
-     ("gola quadrada","SQUARE NECKLINE"),("decote quadrado","SQUARE NECKLINE"),
-     ("manga morcego","BATWING SLEEVE"),("manga 3/4","THREE QUARTER SLEEVE"),
-     ("manga regata","SLEEVELESS"),("sem manga","SLEEVELESS"),
-     ("alca fina","SPAGHETTI STRAP"),("alcinha","SPAGHETTI STRAP"),
-
-     # MODELOS
-     ("sereia","MERMAID FIT"),("vestido sereia","MERMAID DRESS"),("saia sereia","MERMAID SKIRT"),
-     ("envelope","WRAP STYLE"),("transpassado","WRAP STYLE"),("evase","A LINE"),
-     ("princesa","A LINE PRINCESS"),("fenda","SLIT"),("fenda alta","HIGH SLIT"),
-     ("acinturado","FITTED WAIST"),("cintura alta","HIGH WAIST"),("cintura baixa","LOW WAIST"),
-     ("costas abertas","OPEN BACK"),("costas nuas","OPEN BACK"),("justo","BODYCON FIT"),
-     ("largo","OVERSIZED LOOSE FIT"),("soltinho","LOOSE FLOWY FIT"),("curto","SHORT LENGTH"),
-     ("longo","LONG LENGTH"),("midi","MIDI LENGTH"),("mini","MINI LENGTH"),
-     ("rodado","FULL CIRCLE SKIRT"),("plissado","PLEATED"),("pregueado","PLEATED"),
-
-     # PECAS
-     ("vestido","DRESS"),("saia","SKIRT"),("blusa","BLOUSE"),("calca","PANTS"),
-     ("short","SHORTS"),("macacao","JUMPSUIT"),("terno","SUIT"),("blazer","BLAZER"),
-     ("colete","VEST"),("camisa social","DRESS SHIRT"),("camisa","SHIRT"),
-     ("cropped","CROPPED TOP"),("top","TOP"),
-
-     # ESTAMPAS
-     ("bolas","POLKA DOTS"),("bolinhas","POLKA DOTS"),("listras","STRIPES"),
-     ("xadrez","PLAID"),("floral","FLORAL PRINT"),("flores","FLORAL PRINT"),
-     ("oncinha","LEOPARD PRINT"),("zebra","ZEBRA PRINT"),("poa","POLKA DOTS"),
-
-     # FESTA / NOIVA
-     ("formatura","FORMAL EVENING GOWN, graduation prom dress, elegant"),
-     ("festa","FORMAL EVENING GOWN, party dress, elegant"),
-     ("vestido de festa","FORMAL EVENING GOWN, elegant party dress"),
-     ("noiva","BRIDAL GOWN, white wedding dress, elegant"),
-     ("vestido de noiva","BRIDAL GOWN, white wedding dress"),
-     ("casamento","WEDDING GOWN, elegant"),
-     ("madrinha","BRIDESMAID DRESS, elegant formal dress"),
-     ("madrinha de casamento","BRIDESMAID DRESS, elegant"),
-     ("mae da noiva","MOTHER OF THE BRIDE DRESS, elegant formal"),
-     ("mae do noivo","MOTHER OF THE GROOM DRESS, elegant formal"),
-     ("daminha","FLOWER GIRL DRESS, little girl princess dress"),
-     ("debutante","DEBUTANTE BALL GOWN, princess dress"),
-     ("15 anos","QUINCEANERA BALL GOWN, princess dress, voluminous"),
-     ("xv anos","QUINCEANERA BALL GOWN, princess dress"),
-     ("gala","GALA EVENING GOWN, luxurious"),("baile","BALL GOWN, formal"),
-     ("vestido princesa","PRINCESS BALL GOWN, voluminous skirt"),
-     ("vestido de princesa","PRINCESS BALL GOWN, voluminous skirt"),
-     ("cauda","LONG TRAIN, trailing fabric"),("com cauda","WITH LONG TRAIN"),
-     ("veu","WITH VEIL"),("com veu","WITH VEIL"),
-]
 D = sorted(D, key=lambda x: len(x[0]), reverse=True)
-for pt,en in D:
-        desc = desc.replace(pt,en)
+for pt, en in D:
+    desc = desc.replace(pt, en)
 trava = ""
 if "branco" in t and "bola" in t:
-        trava = "WHITE base with BLACK polka dots, NO black dress"
+    trava = "WHITE base with BLACK polka dots, NO black dress"
 elif "preto" in t and "bola" in t:
-        trava = "BLACK base with WHITE polka dots, NO white dress"
+    trava = "BLACK base with WHITE polka dots, NO white dress"
 prompt_final = f"Product photo, {desc}, {trava}, full garment, studio light, gray background, fashion catalog, high quality, NO animal, NO monster, NO fruit, NO person, only garment"
 if "terno" in t or "blazer" in t:
-        cat = "upper_body"
+    cat = "upper_body"
 elif "bojo" in t or "sutia" in t or "cropped" in t or "blusa" in t:
-        cat = "tops"
+    cat = "tops"
 elif "calca" in t:
-        cat = "lower_body"
+    cat = "lower_body"
 else:
-        cat = "dresses"
-return prompt_final, cat
+    cat = "dresses"
+ return prompt_final, cat
 # ==========================================
 # ARQUIVOS JSON
 # ==========================================
+
 
 def ler_json(caminho, padrao):
     nome = os.path.basename(caminho).replace(".json", "")
@@ -258,6 +345,7 @@ def ler_json(caminho, padrao):
     except Exception as erro:
         print("[JSON] Erro:", erro)
         return padrao
+
 
 def salvar_json(caminho, dados):
     nome = os.path.basename(caminho).replace(".json", "")
@@ -288,6 +376,7 @@ def carregar_dias_bloqueados():
 # ADMINISTRAÇÃO
 # ==========================================
 
+
 def admin_obrigatorio(funcao):
 
     @wraps(funcao)
@@ -295,10 +384,7 @@ def admin_obrigatorio(funcao):
 
         if not session.get("admin_logado"):
 
-            flash(
-                "Entre na Área da Dona.",
-                "erro"
-            )
+            flash("Entre na Área da Dona.", "erro")
 
             return redirect(url_for("admin"))
 
@@ -311,20 +397,18 @@ def admin_obrigatorio(funcao):
 # REPLICATE API
 # ==========================================
 
+
 def replicate_headers():
 
     if not REPLICATE_API_TOKEN:
 
         raise RuntimeError(
-            "Token da Replicate não configurado. "
-            "Verifique o arquivo .env."
+            "Token da Replicate não configurado. " "Verifique o arquivo .env."
         )
 
     return {
-        "Authorization": (
-            f"Bearer {REPLICATE_API_TOKEN}"
-        ),
-        "Content-Type": "application/json"
+        "Authorization": (f"Bearer {REPLICATE_API_TOKEN}"),
+        "Content-Type": "application/json",
     }
 
 
@@ -333,24 +417,18 @@ def buscar_versao(modelo):
     print("[REPLICATE] Buscando versão:", modelo)
 
     resposta = requests.get(
-        f"{REPLICATE_BASE}/models/{modelo}",
-        headers=replicate_headers(),
-        timeout=30
+        f"{REPLICATE_BASE}/models/{modelo}", headers=replicate_headers(), timeout=30
     )
 
     resposta.raise_for_status()
 
     dados = resposta.json()
 
-    versao = (
-        dados.get("latest_version") or {}
-    ).get("id")
+    versao = (dados.get("latest_version") or {}).get("id")
 
     if not versao:
 
-        raise RuntimeError(
-            "Não foi possível encontrar a versão do modelo."
-        )
+        raise RuntimeError("Não foi possível encontrar a versão do modelo.")
 
     print("[REPLICATE] Versão:", versao)
 
@@ -367,33 +445,20 @@ def get_idm_version():
     return buscar_versao(IDM_MODEL)
 
 
-def replicate_run_by_version(
-    versao,
-    entrada,
-    timeout_total=360
-):
+def replicate_run_by_version(versao, entrada, timeout_total=360):
 
     print("[REPLICATE] Criando geração...")
 
     resposta = requests.post(
         f"{REPLICATE_BASE}/predictions",
-
         headers=replicate_headers(),
-
-        json={
-            "version": versao,
-            "input": entrada
-        },
-
-        timeout=60
+        json={"version": versao, "input": entrada},
+        timeout=60,
     )
 
     if not resposta.ok:
 
-        raise RuntimeError(
-            "Erro na API Replicate: "
-            + resposta.text
-        )
+        raise RuntimeError("Erro na API Replicate: " + resposta.text)
 
     prediction = resposta.json()
 
@@ -401,14 +466,9 @@ def replicate_run_by_version(
 
     if not prediction_id:
 
-        raise RuntimeError(
-            "A API não retornou o ID da geração."
-        )
+        raise RuntimeError("A API não retornou o ID da geração.")
 
-    print(
-        "[REPLICATE] ID:",
-        prediction_id
-    )
+    print("[REPLICATE] ID:", prediction_id)
 
     inicio = time.time()
 
@@ -418,13 +478,8 @@ def replicate_run_by_version(
 
         consulta = requests.get(
             f"{REPLICATE_BASE}/predictions/{prediction_id}",
-
-            headers={
-                "Authorization":
-                f"Bearer {REPLICATE_API_TOKEN}"
-            },
-
-            timeout=30
+            headers={"Authorization": f"Bearer {REPLICATE_API_TOKEN}"},
+            timeout=30,
         )
 
         consulta.raise_for_status()
@@ -441,14 +496,9 @@ def replicate_run_by_version(
 
         if status in ["failed", "canceled"]:
 
-            raise RuntimeError(
-                "Falha na geração: "
-                + str(dados.get("error"))
-            )
+            raise RuntimeError("Falha na geração: " + str(dados.get("error")))
 
-    raise TimeoutError(
-        "Tempo limite da geração excedido."
-    )
+    raise TimeoutError("Tempo limite da geração excedido.")
 
 
 def primeira_url_saida(saida):
@@ -464,37 +514,25 @@ def primeira_url_saida(saida):
         for chave in ["url", "image", "output"]:
 
             if chave in saida:
-                return primeira_url_saida(
-                    saida[chave]
-                )
+                return primeira_url_saida(saida[chave])
 
-    raise RuntimeError(
-        "A imagem não foi encontrada."
-    )
+    raise RuntimeError("A imagem não foi encontrada.")
 
 
 def baixar_imagem_base64(url):
 
     print("[IMAGEM] Baixando resultado...")
 
-    resposta = requests.get(
-        url,
-        timeout=90
-    )
+    resposta = requests.get(url, timeout=90)
 
     resposta.raise_for_status()
 
-    tipo = resposta.headers.get(
-        "Content-Type",
-        "image/png"
-    ).split(";")[0]
+    tipo = resposta.headers.get("Content-Type", "image/png").split(";")[0]
 
     if not tipo.startswith("image/"):
         tipo = "image/png"
 
-    imagem = base64.b64encode(
-        resposta.content
-    ).decode("utf-8")
+    imagem = base64.b64encode(resposta.content).decode("utf-8")
 
     return f"data:{tipo};base64,{imagem}"
 
@@ -505,14 +543,9 @@ def gerar_com_flux(prompt):
     prompt_final, _ = montar_prompt_corrigido(prompt)
     print("[FLUX] Prompt traduzido:", prompt_final)
     versao = get_flux_version()
-    resultado = replicate_run_by_version(
-        versao,
-        {"prompt": prompt_final}
-    )
+    resultado = replicate_run_by_version(versao, {"prompt": prompt_final})
 
-    return baixar_imagem_base64(
-        primeira_url_saida(resultado)
-    )
+    return baixar_imagem_base64(primeira_url_saida(resultado))
 
 
 def gerar_provador(foto_pessoa_base64, descricao):
@@ -535,20 +568,61 @@ def gerar_provador(foto_pessoa_base64, descricao):
 
         buffer = io.BytesIO()
         img.save(buffer, format="JPEG")
-        foto_pessoa_base64 = cabecalho + "," + base64.b64encode(buffer.getvalue()).decode("utf-8")
+        foto_pessoa_base64 = (
+            cabecalho + "," + base64.b64encode(buffer.getvalue()).decode("utf-8")
+        )
         print("[PROVADOR] Foto diminuida para 768px")
     except Exception as e:
         print(f"Não consegui diminuir: {e}")
 
     # Descobre o tipo de roupa sozinho
     d = descricao.lower()
-    if any(p in d for p in ["conjunto", "macacão", "macacao", "jumpsuit", "vestido", "noiva", "longo"]):
+    if any(
+        p in d
+        for p in [
+            "conjunto",
+            "macacão",
+            "macacao",
+            "jumpsuit",
+            "vestido",
+            "noiva",
+            "longo",
+        ]
+    ):
         categoria = "dresses"
         tipo = "vestido / roupa de corpo inteiro"
-    elif any(p in d for p in ["calça", "calca", "legging", "jeans", "short", "saia", "bermuda", "pantalona"]):
+    elif any(
+        p in d
+        for p in [
+            "calça",
+            "calca",
+            "legging",
+            "jeans",
+            "short",
+            "saia",
+            "bermuda",
+            "pantalona",
+        ]
+    ):
         categoria = "lower_body"
         tipo = "parte de baixo"
-    elif any(p in d for p in ["blusa", "camisa", "camiseta", "top", "cropp", "cropped", "jaqueta", "casaco", "blazer", "suéter", "moletom", "colete"]):
+    elif any(
+        p in d
+        for p in [
+            "blusa",
+            "camisa",
+            "camiseta",
+            "top",
+            "cropp",
+            "cropped",
+            "jaqueta",
+            "casaco",
+            "blazer",
+            "suéter",
+            "moletom",
+            "colete",
+        ]
+    ):
         categoria = "upper_body"
         tipo = "parte de cima"
     else:
@@ -576,8 +650,8 @@ def gerar_provador(foto_pessoa_base64, descricao):
                     "garm_img": roupa,
                     "human_img": foto_pessoa_base64,
                     "garment_des": descricao,
-                    "category": categoria
-                }
+                    "category": categoria,
+                },
             )
             break
         except Exception as e:
@@ -587,9 +661,8 @@ def gerar_provador(foto_pessoa_base64, descricao):
     if resultado is None:
         raise RuntimeError("Deu erro, tenta de novo em 1 minutinho!")
 
-    return baixar_imagem_base64(
-        primeira_url_saida(resultado)
-    )
+    return baixar_imagem_base64(primeira_url_saida(resultado))
+
 
 # ==========================================
 # DESIGN E TEMPLATE PRINCIPAL
@@ -840,53 +913,37 @@ footer a {
 
 def pagina(titulo, conteudo, admin=False, **dados):
 
-    conteudo_html = render_template_string(
-        conteudo,
-        **dados
-    )
+    conteudo_html = render_template_string(conteudo, **dados)
 
     return render_template_string(
-        BASE_HTML,
-        titulo=titulo,
-        conteudo=conteudo_html,
-        admin=admin
+        BASE_HTML, titulo=titulo, conteudo=conteudo_html, admin=admin
     )
 
 
 def extensao_permitida(nome):
 
-    return (
-        "." in nome
-        and nome.rsplit(".", 1)[1].lower()
-        in EXTENSOES_PERMITIDAS
-    )
+    return "." in nome and nome.rsplit(".", 1)[1].lower() in EXTENSOES_PERMITIDAS
 
 
 def dia_e_horario_validos(data_texto, hora):
 
     try:
-        data_obj = datetime.strptime(
-            data_texto, "%Y-%m-%d"
-        ).date()
+        data_obj = datetime.strptime(data_texto, "%Y-%m-%d").date()
     except ValueError:
         return False
 
-    return (
-        data_obj.weekday() <= 5
-        and hora in HORARIOS
-    )
+    return data_obj.weekday() <= 5 and hora in HORARIOS
 
 
 def numero_whatsapp(numero):
 
-    return "".join(
-        c for c in str(numero)
-        if c.isdigit()
-    )
+    return "".join(c for c in str(numero) if c.isdigit())
+
 
 # ==========================================
 # PÁGINA INICIAL
 # ==========================================
+
 
 @app.route("/")
 def inicio():
@@ -950,7 +1007,6 @@ def inicio():
     </section>
     """
 
-
     return pagina("Início", conteudo)
 
 
@@ -958,18 +1014,17 @@ def inicio():
 # LOGO
 # ==========================================
 
+
 @app.route("/logo.png")
 def logo():
 
-    return send_from_directory(
-        BASE_DIR,
-        "logo.png"
-    )
+    return send_from_directory(BASE_DIR, "logo.png")
 
 
 # ==========================================
 # GERADOR DE ROUPAS
 # ==========================================
+
 
 @app.route("/gerar", methods=["GET", "POST"])
 def gerar():
@@ -980,9 +1035,7 @@ def gerar():
 
     if request.method == "POST":
 
-        prompt = request.form.get(
-            "prompt", ""
-        ).strip()
+        prompt = request.form.get("prompt", "").strip()
 
         if not prompt:
 
@@ -1065,16 +1118,14 @@ document.querySelector('form').addEventListener('submit', function(e) {
     """
 
     return pagina(
-        "Gerar Roupa",
-        conteudo,
-        resultado=resultado,
-        erro=erro,
-        prompt=prompt
+        "Gerar Roupa", conteudo, resultado=resultado, erro=erro, prompt=prompt
     )
+
 
 # ==========================================
 # PROVADOR VIRTUAL
 # ==========================================
+
 
 @app.route("/provador", methods=["GET", "POST"])
 def provador():
@@ -1086,9 +1137,7 @@ def provador():
 
         foto = request.files.get("foto")
 
-        descricao = request.form.get(
-            "descricao", ""
-        ).strip()
+        descricao = request.form.get("descricao", "").strip()
 
         if not foto or not foto.filename:
 
@@ -1110,17 +1159,11 @@ def provador():
 
                 tipo = foto.mimetype or "image/jpeg"
 
-                foto_base64 = (
-                    f"data:{tipo};base64,"
-                    + base64.b64encode(
-                        conteudo_foto
-                    ).decode("utf-8")
-                )
+                foto_base64 = f"data:{tipo};base64," + base64.b64encode(
+                    conteudo_foto
+                ).decode("utf-8")
 
-                resultado = gerar_provador(
-                    foto_base64,
-                    descricao
-                )
+                resultado = gerar_provador(foto_base64, descricao)
 
             except Exception as e:
 
@@ -1218,17 +1261,13 @@ document.querySelector('form').addEventListener('submit', function(e) {
     </section>
     """
 
-    return pagina(
-        "Provador Virtual",
-        conteudo,
-        resultado=resultado,
-        erro=erro
-    )
+    return pagina("Provador Virtual", conteudo, resultado=resultado, erro=erro)
 
 
 # ==========================================
 # PORTFÓLIO
 # ==========================================
+
 
 @app.route("/trabalhos")
 def trabalhos():
@@ -1276,28 +1315,24 @@ def trabalhos():
     </section>
     """
 
-    return pagina(
-        "Portfólio",
-        conteudo,
-        trabalhos=lista
-    )
+    return pagina("Portfólio", conteudo, trabalhos=lista)
 
 
 # ==========================================
 # ACESSAR FOTOS
 # ==========================================
 
+
 @app.route("/uploads/<path:nome>")
 def uploads(nome):
 
-    return send_from_directory(
-        UPLOAD_FOLDER,
-        nome
-    )
+    return send_from_directory(UPLOAD_FOLDER, nome)
+
 
 # ==========================================
 # AGENDAMENTO
 # ==========================================
+
 
 @app.route("/agendar", methods=["GET", "POST"])
 def agendar():
@@ -1307,39 +1342,21 @@ def agendar():
 
     if request.method == "POST":
 
-        nome = request.form.get(
-            "nome", ""
-        ).strip()
+        nome = request.form.get("nome", "").strip()
 
-        whatsapp = numero_whatsapp(
-            request.form.get("whatsapp", "")
-        )
+        whatsapp = numero_whatsapp(request.form.get("whatsapp", ""))
 
-        servico = request.form.get(
-            "servico", ""
-        ).strip()
+        servico = request.form.get("servico", "").strip()
 
-        data_texto = request.form.get(
-            "data", ""
-        )
+        data_texto = request.form.get("data", "")
 
-        hora = request.form.get(
-            "hora", ""
-        )
+        hora = request.form.get("hora", "")
 
-        if not all([
-            nome,
-            whatsapp,
-            servico,
-            data_texto,
-            hora
-        ]):
+        if not all([nome, whatsapp, servico, data_texto, hora]):
 
             erro = "Preencha todos os campos."
 
-        elif not dia_e_horario_validos(
-            data_texto, hora
-        ):
+        elif not dia_e_horario_validos(data_texto, hora):
 
             erro = (
                 "Estamos fechados nesse horário. "
@@ -1360,9 +1377,7 @@ def agendar():
             lista = carregar_agendamentos()
 
             ocupado = any(
-                item["data"] == data_texto
-                and item["hora"] == hora
-                for item in lista
+                item["data"] == data_texto and item["hora"] == hora for item in lista
             )
 
             if ocupado:
@@ -1377,35 +1392,28 @@ def agendar():
                     "whatsapp": whatsapp,
                     "servico": servico,
                     "data": data_texto,
-                    "hora": hora
+                    "hora": hora,
                 }
 
                 lista.append(novo)
 
-                salvar_json(
-                    AGENDAMENTOS_FILE,
-                    lista
-                )
+                salvar_json(AGENDAMENTOS_FILE, lista)
 
                 mensagem = (
-    f"✨ *KF ATELIÊ* ✨\n"
-    f"-------------------------\n"
-    f"Olá, *{nome}!* 👋\n\n"
-    f"Seu horário foi reservado com sucesso! ✅\n\n"
-    f"📅 *Data:* {data_texto}\n"
-    f"🕙 *Horário:* {hora}\n"
-    f"✂️ *Serviço:* {servico}\n"
-    f"📍 *Local:* KF Ateliê\n\n"
-    f"Te esperamos lá! Qualquer dúvida, é só chamar aqui. 💛\n\n"
-    f"_Obrigada pela preferência!_"
-)
-                link = (
-                    "https://wa.me/5538999442556"
-                    "?text="
-                    + __import__("urllib.parse").parse.quote(
-                        mensagem
-                    )
+                    f"✨ *KF ATELIÊ* ✨\n"
+                    f"-------------------------\n"
+                    f"Olá, *{nome}!* 👋\n\n"
+                    f"Seu horário foi reservado com sucesso! ✅\n\n"
+                    f"📅 *Data:* {data_texto}\n"
+                    f"🕙 *Horário:* {hora}\n"
+                    f"✂️ *Serviço:* {servico}\n"
+                    f"📍 *Local:* KF Ateliê\n\n"
+                    f"Te esperamos lá! Qualquer dúvida, é só chamar aqui. 💛\n\n"
+                    f"_Obrigada pela preferência!_"
                 )
+                link = "https://wa.me/5538999442556" "?text=" + __import__(
+                    "urllib.parse"
+                ).parse.quote(mensagem)
 
                 sucesso = link
 
@@ -1491,12 +1499,14 @@ def agendar():
         erro=erro,
         sucesso=sucesso,
         hoje=date.today().isoformat(),
-        horarios=HORARIOS
+        horarios=HORARIOS,
     )
+
 
 # ==========================================
 # LOGIN ADMINISTRATIVO
 # ==========================================
+
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
@@ -1544,16 +1554,9 @@ def admin():
         </section>
         """
 
-        return pagina(
-            "Área da Dona",
-            conteudo,
-            admin=True
-        )
+        return pagina("Área da Dona", conteudo, admin=True)
 
-    lista = sorted(
-        carregar_agendamentos(),
-        key=lambda x: (x["data"], x["hora"])
-    )
+    lista = sorted(carregar_agendamentos(), key=lambda x: (x["data"], x["hora"]))
 
     portfolio = carregar_trabalhos()
 
@@ -1734,7 +1737,6 @@ CANCELAR E AVISAR
 
     </section>
     """
-   
 
     return pagina(
         "Painel Administrativo",
@@ -1747,9 +1749,11 @@ CANCELAR E AVISAR
         horarios=HORARIOS,
     )
 
+
 # ==========================================
 # BLOQUEAR DIA
 # ==========================================
+
 
 @app.route("/admin/bloquear", methods=["POST"])
 @admin_obrigatorio
@@ -1758,9 +1762,7 @@ def bloquear_dia():
     data_texto = request.form.get("data", "")
 
     try:
-        data_obj = datetime.strptime(
-            data_texto, "%Y-%m-%d"
-        ).date()
+        data_obj = datetime.strptime(data_texto, "%Y-%m-%d").date()
 
         if data_obj < date.today():
             flash("Escolha uma data válida.", "erro")
@@ -1770,10 +1772,7 @@ def bloquear_dia():
             if data_texto not in lista:
                 lista.append(data_texto)
 
-            salvar_json(
-                DIAS_BLOQUEADOS_FILE,
-                lista
-            )
+            salvar_json(DIAS_BLOQUEADOS_FILE, lista)
 
             flash("Agenda fechada neste dia.", "sucesso")
 
@@ -1787,22 +1786,16 @@ def bloquear_dia():
 # DESBLOQUEAR DIA
 # ==========================================
 
+
 @app.route("/admin/desbloquear", methods=["POST"])
 @admin_obrigatorio
 def desbloquear_dia():
 
     data_texto = request.form.get("data")
 
-    lista = [
-        dia
-        for dia in carregar_dias_bloqueados()
-        if dia != data_texto
-    ]
+    lista = [dia for dia in carregar_dias_bloqueados() if dia != data_texto]
 
-    salvar_json(
-        DIAS_BLOQUEADOS_FILE,
-        lista
-    )
+    salvar_json(DIAS_BLOQUEADOS_FILE, lista)
 
     flash("Dia reaberto.", "sucesso")
 
@@ -1812,6 +1805,7 @@ def desbloquear_dia():
 # ==========================================
 # REMARCAR AGENDAMENTO
 # ==========================================
+
 
 @app.route("/admin/remarcar", methods=["POST"])
 @admin_obrigatorio
@@ -1823,9 +1817,7 @@ def remarcar():
 
     nova_hora = request.form.get("hora")
 
-    if not dia_e_horario_validos(
-        nova_data, nova_hora
-    ):
+    if not dia_e_horario_validos(nova_data, nova_hora):
 
         flash("Horário inválido.", "erro")
 
@@ -1867,10 +1859,7 @@ def remarcar():
 
     if encontrado:
 
-        salvar_json(
-            AGENDAMENTOS_FILE,
-            lista
-        )
+        salvar_json(AGENDAMENTOS_FILE, lista)
 
         flash("Agendamento remarcado!", "sucesso")
 
@@ -1885,6 +1874,7 @@ def remarcar():
 # EXCLUIR AGENDAMENTO
 # ==========================================
 
+
 @app.route("/admin/excluir-agendamento", methods=["POST"])
 @admin_obrigatorio
 def excluir_agendamento():
@@ -1893,16 +1883,9 @@ def excluir_agendamento():
 
     lista = carregar_agendamentos()
 
-    lista = [
-        item
-        for item in lista
-        if item["id"] != identificador
-    ]
+    lista = [item for item in lista if item["id"] != identificador]
 
-    salvar_json(
-        AGENDAMENTOS_FILE,
-        lista
-    )
+    salvar_json(AGENDAMENTOS_FILE, lista)
 
     flash("Agendamento excluído.", "sucesso")
 
@@ -1913,19 +1896,16 @@ def excluir_agendamento():
 # ADICIONAR TRABALHO
 # ==========================================
 
+
 @app.route("/admin/adicionar-trabalho", methods=["POST"])
 @admin_obrigatorio
 def adicionar_trabalho():
 
     foto = request.files.get("foto")
 
-    titulo = request.form.get(
-        "titulo", ""
-    ).strip()
+    titulo = request.form.get("titulo", "").strip()
 
-    descricao = request.form.get(
-        "descricao", ""
-    ).strip()
+    descricao = request.form.get("descricao", "").strip()
 
     if not foto or not foto.filename or not titulo:
 
@@ -1938,17 +1918,11 @@ def adicionar_trabalho():
         flash("Formato de imagem inválido.", "erro")
 
         return redirect("/admin")
-    nome_original = secure_filename(
-        foto.filename
-    )
+    nome_original = secure_filename(foto.filename)
 
-    extensao = nome_original.rsplit(
-        ".", 1
-    )[1].lower()
+    extensao = nome_original.rsplit(".", 1)[1].lower()
 
-    nome_arquivo = (
-        uuid.uuid4().hex + ".jpg"
-    )
+    nome_arquivo = uuid.uuid4().hex + ".jpg"
 
     # Manda pro Cloudinary em vez de salvar no Render
     try:
@@ -1958,7 +1932,7 @@ def adicionar_trabalho():
         cloudinary.config(
             cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
             api_key=os.environ.get("CLOUDINARY_API_KEY"),
-            api_secret=os.environ.get("CLOUDINARY_API_SECRET")
+            api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
         )
 
         foto.seek(0)
@@ -1966,17 +1940,19 @@ def adicionar_trabalho():
             foto,
             public_id=nome_arquivo.rsplit(".", 1)[0],
             folder="kf-atelie",
-            resource_type="image"
+            resource_type="image",
         )
 
         url_imagem = upload_result.get("secure_url")
         lista = carregar_trabalhos()
-        lista.append({
-            "id": uuid.uuid4().hex,
-            "titulo": titulo,
-            "descricao": descricao,
-            "arquivo": url_imagem
-        })
+        lista.append(
+            {
+                "id": uuid.uuid4().hex,
+                "titulo": titulo,
+                "descricao": descricao,
+                "arquivo": url_imagem,
+            }
+        )
         salvar_json(TRABALHOS_FILE, lista)
         flash("Trabalho adicionado!", "sucesso")
         return redirect("/admin")
@@ -1986,15 +1962,13 @@ def adicionar_trabalho():
         flash("Erro ao enviar a foto para o Cloudinary.", "erro")
         return redirect("/admin")
 
- 
+
 # ==========================================
 # EXCLUIR TRABALHO
 # ==========================================
 
-@app.route(
-    "/admin/excluir-trabalho/<trabalho_id>",
-    methods=["POST"]
-)
+
+@app.route("/admin/excluir-trabalho/<trabalho_id>", methods=["POST"])
 @admin_obrigatorio
 def excluir_trabalho(trabalho_id):
 
@@ -2005,10 +1979,7 @@ def excluir_trabalho(trabalho_id):
 
     for item in removidos:
 
-        caminho = os.path.join(
-            UPLOAD_FOLDER,
-            os.path.basename(item["arquivo"])
-        )
+        caminho = os.path.join(UPLOAD_FOLDER, os.path.basename(item["arquivo"]))
 
         if os.path.isfile(caminho):
             os.remove(caminho)
@@ -2022,22 +1993,19 @@ def excluir_trabalho(trabalho_id):
 # ERRO DE ARQUIVO GRANDE
 # ==========================================
 
+
 @app.errorhandler(413)
 def arquivo_grande(erro):
 
-    return (
-        "Arquivo muito grande. "
-        "Envie uma imagem menor que 12 MB.",
-        413
-    )
+    return ("Arquivo muito grande. " "Envie uma imagem menor que 12 MB.", 413)
 
 
 # ==========================================
 # INICIAR SISTEMA
 # ==========================================
-@app.route('/loaderio-f488d573a62d709942d416f7ca95b72c.txt')
+@app.route("/loaderio-f488d573a62d709942d416f7ca95b72c.txt")
 def verifica_loader():
-    return 'loaderio-f488d573a62d709942d416f7ca95b72c'
+    return "loaderio-f488d573a62d709942d416f7ca95b72c"
 
 
 # ==========================================
@@ -2100,21 +2068,18 @@ def iniciar_provador():
             PROVADOR_JOBS[job_id] = {
                 "status": "gerando",
                 "resultado": None,
-                "erro": None
+                "erro": None,
             }
 
         thread = threading.Thread(
             target=executar_trabalho_provador,
             args=(job_id, foto_base64, descricao),
-            daemon=True
+            daemon=True,
         )
 
         thread.start()
 
-        return jsonify({
-            "job_id": job_id,
-            "status": "gerando"
-        })
+        return jsonify({"job_id": job_id, "status": "gerando"})
 
     except Exception as erro:
         return jsonify({"erro": str(erro)}), 500
@@ -2128,15 +2093,17 @@ def status_provador(job_id):
         trabalho = PROVADOR_JOBS.get(job_id)
 
         if trabalho is None:
-            return jsonify({
-                "status": "nao_encontrado"
-            }), 404
+            return jsonify({"status": "nao_encontrado"}), 404
 
-        return jsonify({
-            "status": trabalho["status"],
-            "resultado": trabalho["resultado"],
-            "erro": trabalho["erro"]
-        })
+        return jsonify(
+            {
+                "status": trabalho["status"],
+                "resultado": trabalho["resultado"],
+                "erro": trabalho["erro"],
+            }
+        )
+
+
 if __name__ == "__main__":
 
     print("=" * 50)
@@ -2145,8 +2112,9 @@ if __name__ == "__main__":
 
     print("Servidor iniciando...")
 
-    print("Token Replicate:",
-          "CONFIGURADO" if REPLICATE_API_TOKEN else "NÃO CONFIGURADO")
+    print(
+        "Token Replicate:", "CONFIGURADO" if REPLICATE_API_TOKEN else "NÃO CONFIGURADO"
+    )
 
     print("Site: http://127.0.0.1:5000")
 
@@ -2154,8 +2122,4 @@ if __name__ == "__main__":
 
     print("=" * 50)
 
-    app.run(
-        debug=True,
-        host="127.0.0.1",
-        port=5000
-    )
+    app.run(debug=True, host="127.0.0.1", port=5000)
