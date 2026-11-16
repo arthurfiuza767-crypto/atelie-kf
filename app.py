@@ -1148,7 +1148,7 @@ def provador():
 
         foto = request.files.get("foto")
 
-        descricao = request.form.get("descricao", "").strip()
+        
 
         if not foto or not foto.filename:
 
@@ -1158,10 +1158,7 @@ def provador():
 
             erro = "Formato de imagem inválido."
 
-        elif not descricao:
-
-            erro = "Descreva a roupa."
-
+    
         else:
 
             try:
@@ -1174,7 +1171,7 @@ def provador():
                     conteudo_foto
                 ).decode("utf-8")
 
-                resultado = gerar_provador(foto_base64, descricao)
+                resultado = gerar_provador(foto_base64, foto_roupa_base64)
 
             except Exception as e:
 
