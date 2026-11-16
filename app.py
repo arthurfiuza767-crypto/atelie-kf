@@ -306,26 +306,23 @@ def montar_prompt_corrigido(descricao_pt):
         ("veu", "WITH VEIL"),
         ("com veu", "WITH VEIL"),
     ]
+    D = sorted(D, key=lambda x: len(x[0]), reverse=True)
+    for pt, en in D:
+        if pt in t:
+            prompt_final = prompt_final.replace(pt, en)
+
+    t = descricao_pt.lower()
+    if "camiseta" in t or "camisa" in t or "top" in t:
+        cat = "upper_body"
+    elif "bojo" in t or "sutia" in t or "cropped" in t or "blusa" in t:
+        cat = "tops"
+    elif "calca" in t:
+        cat = "lower_body"
+    else:
+        cat = "dresses"
+    return prompt_final, cat
 
 
-D = sorted(D, key=lambda x: len(x[0]), reverse=True)
-for pt, en in D:
-    desc = desc.replace(pt, en)
-trava = ""
-if "branco" in t and "bola" in t:
-    trava = "WHITE base with BLACK polka dots, NO black dress"
-elif "preto" in t and "bola" in t:
-    trava = "BLACK base with WHITE polka dots, NO white dress"
-prompt_final = f"Product photo, {desc}, {trava}, full garment, studio light, gray background, fashion catalog, high quality, NO animal, NO monster, NO fruit, NO person, only garment"
-if "terno" in t or "blazer" in t:
-    cat = "upper_body"
-elif "bojo" in t or "sutia" in t or "cropped" in t or "blusa" in t:
-    cat = "tops"
-elif "calca" in t:
-    cat = "lower_body"
-else:
-    cat = "dresses"
- return prompt_final, cat
 # ==========================================
 # ARQUIVOS JSON
 # ==========================================
