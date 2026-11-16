@@ -549,8 +549,10 @@ def gerar_com_flux(prompt):
     return baixar_imagem_base64(primeira_url_saida(resultado))
 
 
-def gerar_provador(foto_pessoa_base64, descricao):
+def gerar_provador(foto_pessoa_base64, foto_roupa_base64):
     print("[PROVADOR] Gerando roupa...")
+    descricao = "roupa da segunda imagem, manter cor, estampa e modelo exatos"
+    roupa = foto_roupa_base64
 
     # PASSO 0 - Diminui a foto para ficar mais rápido!
     try:
@@ -1204,12 +1206,8 @@ def provador():
                 accept="image/png,image/jpeg,image/webp"
                 required>
 
-            <label>Descrição da roupa</label>
-
-            <textarea
-                name="descricao"
-                rows="4"
-                required></textarea>
+          <label>Foto da roupa</label>
+<input type="file" name="foto_roupa" accept="image/*" required>
         
          <button id="btn-provador" class="botao" type="submit">
   EXPERIMENTAR ROUPA
@@ -2032,19 +2030,13 @@ PROVADOR_JOBS = {}
 # Proteção para acesso simultâneo
 PROVADOR_LOCK = threading.Lock()
 
-
-def executar_trabalho_provador(job_id, foto_base64, descricao):
-
+def executar_trabalho_provador(job_id, foto_base64, foto_roupa_base64):
     try:
-        # Executa a função original do provador
-        resultado = gerar_provador(foto_base64, descricao)
-
+        resultado = gerar_provador(foto_base64, foto_roupa_base64)
         with PROVADOR_LOCK:
             PROVADOR_JOBS[job_id]["resultado"] = resultado
             PROVADOR_JOBS[job_id]["status"] = "concluido"
-
     except Exception as erro:
-
         with PROVADOR_LOCK:
             PROVADOR_JOBS[job_id]["status"] = "erro"
             PROVADOR_JOBS[job_id]["erro"] = str(erro)
@@ -2053,22 +2045,26 @@ def executar_trabalho_provador(job_id, foto_base64, descricao):
 # Rota para iniciar uma geração em segundo plano
 @app.route("/iniciar_provador", methods=["POST"])
 def iniciar_provador():
-
     foto = request.files.get("foto")
-    descricao = request.form.get("descricao", "").strip()
+    foto_roupa = request.files.get("foto_roupa")
 
     if not foto or not foto.filename:
-        return jsonify({"erro": "Selecione uma foto."}), 400
+        return jsonify({"erro": "Selecione sua foto."}), 400
 
-    if not descricao:
-        return jsonify({"erro": "Informe a descrição da roupa."}), 400
+    if not foto_roupa or not foto_roupa.filename:
+        return jsonify({"erro": "Selecione a foto da roupa."}), 400
 
     try:
         imagem = foto.read()
-
         foto_base64 = (
             f"data:{foto.mimetype or 'image/jpeg'};base64,"
             + base64.b64encode(imagem).decode("utf-8")
+        )
+
+        imagem_roupa = foto_roupa.read()
+        foto_roupa_base64 = (
+            f"data:{foto_roupa.mimetype or 'image/jpeg'};base64,"
+            + base64.b64encode(imagem_roupa).decode("utf-8")
         )
 
         job_id = str(uuid.uuid4())
@@ -2082,14 +2078,11 @@ def iniciar_provador():
 
         thread = threading.Thread(
             target=executar_trabalho_provador,
-            args=(job_id, foto_base64, descricao),
+            args=(job_id, foto_base64, foto_roupa_base64),
             daemon=True,
         )
-
         thread.start()
-
         return jsonify({"job_id": job_id, "status": "gerando"})
-
     except Exception as erro:
         return jsonify({"erro": str(erro)}), 500
 
