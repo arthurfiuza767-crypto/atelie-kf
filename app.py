@@ -660,7 +660,17 @@ def gerar_provador(foto_pessoa_base64, descricao):
     if resultado is None:
         raise RuntimeError("Deu erro, tenta de novo em 1 minutinho!")
 
-    return baixar_imagem_base64(primeira_url_saida(resultado))
+    # IDM-VTON devolve 1 imagem so, nao lista
+    url_saida = resultado
+    if isinstance(resultado, list):
+        url_saida = resultado[0] if resultado else None
+    if isinstance(url_saida, dict):
+        url_saida = list(url_saida.values())[0]
+    if hasattr(url_saida, "url"):
+        url_saida = url_saida.url
+    url_saida = str(url_saida)
+    print(f"[PROVADOR] URL saida: {url_saida[:120]}")
+    return baixar_imagem_base64(url_saida)
 
 
 # ==========================================
