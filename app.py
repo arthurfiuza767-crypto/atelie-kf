@@ -4,6 +4,7 @@ import time
 import base64
 import uuid
 import requests
+import replicate
 from datetime import datetime, date
 from functools import wraps
 from dotenv import load_dotenv
