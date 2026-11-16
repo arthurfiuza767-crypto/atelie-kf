@@ -644,7 +644,7 @@ def gerar_provador(foto_pessoa_base64, descricao):
     for tentativa in range(3):
         try:
             resultado = replicate.run(
-                "cuuupid/idm-vton",
+                "cuuupid/idm-vton:0513734a452173b8173e907e3a59d19a36266e55b48528559432bd21c7d7e985",
                 input={
                     "garm_img": roupa,
                     "human_img": foto_pessoa_base64,
