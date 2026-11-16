@@ -145,6 +145,7 @@ def tirar_acento(t):
 def montar_prompt_corrigido(descricao_pt):
     t = tirar_acento(descricao_pt.lower())
     desc = t
+    prompt_final = desc
     D = [
         # TECNICAS DE COSTURA - DO SEU ANTIGO, NAO APAGAR
         ("tomara que caia", "STRAPLESS tube top, no straps"),
