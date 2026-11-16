@@ -1188,7 +1188,7 @@ def provador():
         <h1>Provador Virtual</h1>
 
         <p>
-            Envie uma foto sua e descreva a roupa
+            Envie uma foto sua e a foto da roupa
             que gostaria de experimentar.
         </p>
 
