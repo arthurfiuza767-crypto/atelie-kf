@@ -1140,125 +1140,42 @@ document.querySelector('form').addEventListener('submit', function(e) {
 
 @app.route("/provador", methods=["GET", "POST"])
 def provador():
-
     resultado = None
     erro = None
     conteudo = ""
-    foto = None
-
     if request.method == "POST":
-
         foto = request.files.get("foto")
-
-        
-
+        foto_roupa = request.files.get("foto_roupa")
         if not foto or not foto.filename:
-
-            erro = "Envie uma foto."
-
+            erro = "Envie uma foto sua."
+        elif not foto_roupa or not foto_roupa.filename:
+            erro = "Envie a foto da roupa."
         elif not extensao_permitida(foto.filename):
-
-            erro = "Formato de imagem inválido."
-
-    
-    else:
+            erro = "Formato de imagem invalido."
+        else:
             try:
                 conteudo_foto = foto.read()
                 tipo = foto.mimetype or "image/jpeg"
-                foto_base64 = f"data:{tipo};base64," + base64.b64encode(conteudo_foto).decode("utf-8")
-                foto_roupa = request.files.get("foto_roupa")
+                foto_base64 = "data:" + tipo + ";base64," + base64.b64encode(conteudo_foto).decode("utf-8")
                 conteudo_roupa = foto_roupa.read()
                 tipo_roupa = foto_roupa.mimetype or "image/jpeg"
-                foto_roupa_base64 = f"data:{tipo_roupa};base64," + base64.b64encode(conteudo_roupa).decode("utf-8")
+                foto_roupa_base64 = "data:" + tipo_roupa + ";base64," + base64.b64encode(conteudo_roupa).decode("utf-8")
                 resultado = gerar_provador(foto_base64, foto_roupa_base64)
-            except Exception as erro_ex:
-
-
-             print("[ERRO PROVADOR]", erro_ex)
-            erro = str(erro_ex)
-            conteudo = """
+            except Exception:
+                import traceback
+                print("[ERRO PROVADOR]", traceback.format_exc())
+                erro = "Erro ao gerar a foto. Tente de novo."
+    conteudo = """
     <section class="card">
-
         <h1>Provador Virtual</h1>
-
-        <p>
-            Envie uma foto sua e a foto da roupa
-            que gostaria de experimentar.
-        </p>
-
-        {% if erro %}
-        <div class="flash erro">{{ erro }}</div>
-        {% endif %}
-
+        <p>Envie uma foto sua e a foto da roupa que gostaria de experimentar.</p>
         <form method="POST" enctype="multipart/form-data">
-
             <label>Sua fotografia</label>
-
-            <input
-                type="file"
-                name="foto"
-                accept="image/png,image/jpeg,image/webp"
-                required>
-
-          <label>Foto da roupa</label>
-<input type="file" name="foto_roupa" accept="image/*" required>
-        
-         <button id="btn-provador" class="botao" type="submit">
-  EXPERIMENTAR ROUPA
-</button>
-<div id="aviso-provador" style="display:none; margin-top:15px; font-weight:bold;">
-  Gerando sua foto... 💛 Aguarde uns 40 segundos, não recarregue e não clique de novo!
-</div>
-
-<script>
-let jaEnviouProvador = false;
-document.querySelector('form').addEventListener('submit', function(e) {
-  if (jaEnviouProvador) {
-    e.preventDefault();
-    return;
-  }
-  jaEnviouProvador = true;
-  document.getElementById('btn-provador').textContent = 'GERANDO... AGUARDE 💛';
-  document.getElementById('btn-provador').disabled = true;
-  document.getElementById('aviso-provador').style.display = 'block';
-});
-</script>
-
+            <input type="file" name="foto" accept="image/*" required>
+            <label>Foto da roupa</label>
+            <input type="file" name="foto_roupa" accept="image/*" required>
+            <button type="submit">Provar</button>
         </form>
-
-        {% if resultado %}
-
-        <h2>Seu resultado</h2><button id="btn-provador" class="botao" type="submit">
-  EXPERIMENTAR ROUPA
-</button>
-<div id="aviso-provador" style="display:none; margin-top:15px; font-weight:bold;">
-  Gerando sua foto... 💛 Aguarde uns 40 segundos, não recarregue e não clique de novo!
-</div>
-
-<script>
-let jaEnviouProvador = false;
-document.querySelector('form').addEventListener('submit', function(e) {
-  if (jaEnviouProvador) {
-    e.preventDefault();
-    return;
-  }
-  jaEnviouProvador = true;
-  document.getElementById('btn-provador').textContent = 'GERANDO... AGUARDE 💛';
-  document.getElementById('btn-provador').disabled = true;
-  document.getElementById('aviso-provador').style.display = 'block';
-});
-</script>
-
-        <img
-            class="preview"
-            src="{{ resultado }}"
-            alt="Resultado do provador">
-                <a href="{{ resultado }}" download="atelie-kf-provador.jpg" style="display:block; background:#22c55e; color:white; padding:12px; text-align:center; border-radius:10px; text-decoration:none; font-weight:bold; margin-top:10px;">
-              ⬇️ Baixar minha foto
-            </a>
-            
-
-        {% endif %}
     </section>
     """
     return pagina("Provador Virtual", conteudo, resultado=resultado, erro=erro)
