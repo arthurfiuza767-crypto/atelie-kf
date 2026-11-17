@@ -1176,6 +1176,19 @@ def provador():
             <input type="file" name="foto_roupa" accept="image/*" required>
             <button type="submit" id="btn-provar">Provar</button>
         </form>
+        {% if resultado %}
+        <section class="card">
+            <h2>Prontinho! Aqui esta sua prova:</h2>
+            <img src="{{ resultado }}" style="width:100%; border-radius:12px; margin-top:10px;">
+            <br><br>
+            <a href="{{ resultado }}" download="provador.png" target="_blank">
+                <button type="button" style="width:100%; padding:14px; font-size:16px;">Baixar Imagem</button>
+            </a>
+        </section>
+        {% endif %}
+        {% if erro %}
+        <p style="color:red; font-weight:bold;">{{ erro }}</p>
+        {% endif %}
         <div id="aguarde" style="display:none; margin-top:15px; padding:15px; background:#fff3cd; border-radius:8px; text-align:center; font-weight:bold;">
             Aplicando a roupa, espere 40 segundos. Nao clique novamente e nao recarregue a pagina...
         </div>
