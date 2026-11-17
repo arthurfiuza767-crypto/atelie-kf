@@ -1159,27 +1159,22 @@ def provador():
             erro = "Formato de imagem inválido."
 
     
-        else:
-
+    else:
             try:
-
                 conteudo_foto = foto.read()
-
                 tipo = foto.mimetype or "image/jpeg"
-
-                foto_base64 = f"data:{tipo};base64," + base64.b64encode(
-                    conteudo_foto
-                ).decode("utf-8")
-
+                foto_base64 = f"data:{tipo};base64," + base64.b64encode(conteudo_foto).decode("utf-8")
+                foto_roupa = request.files.get("foto_roupa")
+                conteudo_roupa = foto_roupa.read()
+                tipo_roupa = foto_roupa.mimetype or "image/jpeg"
+                foto_roupa_base64 = f"data:{tipo_roupa};base64," + base64.b64encode(conteudo_roupa).decode("utf-8")
                 resultado = gerar_provador(foto_base64, foto_roupa_base64)
-
             except Exception as e:
 
-                print("[ERRO PROVADOR]", e)
 
-                erro = str(e)
-
-    conteudo = """
+             print("[ERRO PROVADOR]", e)
+            erro = str(e)
+            conteudo = """
     <section class="card">
 
         <h1>Provador Virtual</h1>
@@ -1264,7 +1259,6 @@ document.querySelector('form').addEventListener('submit', function(e) {
         {% endif %}
     </section>
     """
-
     return pagina("Provador Virtual", conteudo, resultado=resultado, erro=erro)
 
 
