@@ -1169,13 +1169,23 @@ def provador():
     <section class="card">
         <h1>Provador Virtual</h1>
         <p>Envie uma foto sua e a foto da roupa que gostaria de experimentar.</p>
-        <form method="POST" enctype="multipart/form-data">
+        <form method="POST" action="/provador" enctype="multipart/form-data" onsubmit="mostrarAguarde()">
             <label>Sua fotografia</label>
             <input type="file" name="foto" accept="image/*" required>
             <label>Foto da roupa</label>
             <input type="file" name="foto_roupa" accept="image/*" required>
-            <button type="submit">Provar</button>
+            <button type="submit" id="btn-provar">Provar</button>
         </form>
+        <div id="aguarde" style="display:none; margin-top:15px; padding:15px; background:#fff3cd; border-radius:8px; text-align:center; font-weight:bold;">
+            Aplicando a roupa, espere 40 segundos. Nao clique novamente e nao recarregue a pagina...
+        </div>
+        <script>
+        function mostrarAguarde(){
+            document.getElementById('aguarde').style.display = 'block';
+            document.getElementById('btn-provar').disabled = true;
+            document.getElementById('btn-provar').innerText = 'Aplicando... aguarde...';
+        }
+        </script>
     </section>
     """
     return pagina("Provador Virtual", conteudo, resultado=resultado, erro=erro)
