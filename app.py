@@ -1143,6 +1143,7 @@ def provador():
 
     resultado = None
     erro = None
+    conteudo = ""
 
     if request.method == "POST":
 
