@@ -1144,6 +1144,7 @@ def provador():
     resultado = None
     erro = None
     conteudo = ""
+    foto = None
 
     if request.method == "POST":
 
@@ -1170,11 +1171,11 @@ def provador():
                 tipo_roupa = foto_roupa.mimetype or "image/jpeg"
                 foto_roupa_base64 = f"data:{tipo_roupa};base64," + base64.b64encode(conteudo_roupa).decode("utf-8")
                 resultado = gerar_provador(foto_base64, foto_roupa_base64)
-            except Exception as e:
+            except Exception as erro_ex:
 
 
-             print("[ERRO PROVADOR]", e)
-            erro = str(e)
+             print("[ERRO PROVADOR]", erro_ex)
+            erro = str(erro_ex)
             conteudo = """
     <section class="card">
 
