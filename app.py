@@ -147,14 +147,17 @@ def montar_prompt_corrigido(descricao_pt):
     t = tirar_acento(descricao_pt.lower())
     prompt_final = t
 
+    # CORREÇÃO MASCULINO
+    if "masculin" in t or "homem" in t or "masc" in t or "menino" in t:
+        genero = "Man"
+    else:
+        genero = "Woman"
+
     DICIONARIO = [
-        # ============ CONJUNTOS - TEM QUE VIR PRIMEIRO ============
         ("conjunto de calca", "TWO PIECE MATCHING SET WITH TROUSERS"),
         ("conjunto saia e blusa", "TWO PIECE MATCHING SET WITH SKIRT AND BLOUSE"),
         ("conjunto de saia", "TWO PIECE MATCHING SET WITH SKIRT"),
         ("conjunto", "TWO PIECE MATCHING SET"),
-
-        # ============ REGATA / OMBRO A OMBRO ============
         ("blusa regata", "SLEEVELESS TANK TOP, thin straps, shoulders exposed, NO SLEEVES"),
         ("regata branca", "WHITE SLEEVELESS TANK TOP, thin straps, shoulders exposed, NO SLEEVES"),
         ("regata preta", "BLACK SLEEVELESS TANK TOP, thin straps, shoulders exposed, NO SLEEVES"),
@@ -167,8 +170,6 @@ def montar_prompt_corrigido(descricao_pt):
         ("blusa transparente", "SHEER TRANSPARENT BLOUSE"),
         ("ombro a ombro", "OFF SHOULDER, shoulders exposed"),
         ("ciganinha", "OFF SHOULDER, shoulders exposed"),
-
-        # ============ MANGAS / DECOTES / GOLAS ============
         ("tomara que caia", "STRAPLESS tube top, no straps"),
         ("manga curta", "SHORT SLEEVE"),
         ("manga longa", "LONG SLEEVE"),
@@ -181,8 +182,6 @@ def montar_prompt_corrigido(descricao_pt):
         ("gola v", "V-NECK"),
         ("gola redonda", "ROUND NECK"),
         ("frente unica", "HALTER NECK"),
-
-        # ============ TECIDOS ============
         ("cetim", "SATIN FABRIC"),
         ("seda", "SILK FABRIC"),
         ("renda", "LACE FABRIC"),
@@ -196,8 +195,6 @@ def montar_prompt_corrigido(descricao_pt):
         ("algodao", "COTTON"),
         ("paete", "SEQUIN FABRIC"),
         ("transparente", "SHEER TRANSPARENT"),
-
-        # ============ CORES ============
         ("azul royal", "ROYAL BLUE"),
         ("azul bebe", "BABY BLUE"),
         ("azul marinho", "NAVY BLUE"),
@@ -229,8 +226,6 @@ def montar_prompt_corrigido(descricao_pt):
         ("nude", "NUDE"),
         ("lilas", "LILAC"),
         ("roxo", "PURPLE"),
-
-        # ============ VESTIDOS ============
         ("vestido de noiva", "FORMAL WEDDING GOWN, elegant"),
         ("vestido de festa", "FORMAL EVENING GOWN, elegant"),
         ("vestido de formatura", "FORMAL EVENING GOWN, elegant"),
@@ -248,8 +243,6 @@ def montar_prompt_corrigido(descricao_pt):
         ("vestido com fenda", "DRESS WITH HIGH SLIT"),
         ("vestido gode", "FIT AND FLARE DRESS"),
         ("vestido", "DRESS"),
-
-        # ============ CALÇAS ============
         ("calca pantalona", "WIDE LEG TROUSERS"),
         ("calca jeans", "DENIM JEANS"),
         ("calca de alfaiataria", "TAILORED TROUSERS"),
@@ -262,8 +255,6 @@ def montar_prompt_corrigido(descricao_pt):
         ("calca cintura alta", "HIGH WAIST TROUSERS"),
         ("calca", "TROUSERS"),
         ("pantalona", "WIDE LEG TROUSERS"),
-
-        # ============ SAIAS / SHORTS ============
         ("saia longa", "LONG SKIRT"),
         ("saia midi", "MIDI SKIRT"),
         ("saia curta", "MINI SKIRT"),
@@ -278,8 +269,6 @@ def montar_prompt_corrigido(descricao_pt):
         ("short", "SHORTS"),
         ("macacao", "JUMPSUIT"),
         ("macaquinho", "ROMPER"),
-
-        # ============ PARTE DE CIMA ============
         ("camiseta", "T-SHIRT"),
         ("camisa social", "DRESS SHIRT"),
         ("camisa oversized", "OVERSIZED SHIRT"),
@@ -297,8 +286,6 @@ def montar_prompt_corrigido(descricao_pt):
         ("sueter", "SWEATER"),
         ("colete", "VEST"),
         ("kimono", "KIMONO"),
-
-        # ============ ESTAMPAS ============
         ("floral", "FLORAL PRINT"),
         ("listrado", "STRIPED"),
         ("xadrez", "PLAID"),
@@ -306,8 +293,6 @@ def montar_prompt_corrigido(descricao_pt):
         ("bolinha", "POLKA DOTS"),
         ("animal print", "ANIMAL PRINT"),
         ("oncinha", "LEOPARD PRINT"),
-
-        # ============ OCASIÃO ============
         ("pra festa", "FOR PARTY, elegant"),
         ("pra formatura", "FOR GRADUATION PARTY, elegant"),
         ("pra casamento", "FOR WEDDING, elegant"),
@@ -320,37 +305,36 @@ def montar_prompt_corrigido(descricao_pt):
         ("para praia", "FOR BEACH, light"),
     ]
 
-    # 1. Traduz do maior pro menor
     d = sorted(DICIONARIO, key=lambda x: len(x[0]), reverse=True)
     for pt, en in d:
         if pt in t:
             prompt_final = prompt_final.replace(pt, en)
 
-    # 2. Vira frase completa
+    prompt_final = prompt_final.replace("masculina", "").replace("masculino", "").replace("feminina", "").replace("feminino", "").replace("  ", " ").strip()
+
     if len(t.split()) <= 3:
         if "TANK TOP" in prompt_final:
             if "NO SLEEVES" not in prompt_final:
                 prompt_final = prompt_final + ", NO SLEEVES, thin straps, shoulders exposed"
-            prompt_final = f"Woman wearing {prompt_final}, with black tailored trousers, full body, elegant, studio photo, fashion catalog"
+            prompt_final = f"{genero} wearing {prompt_final}, with black tailored trousers, full body, elegant, studio photo, fashion catalog"
         elif "TWO PIECE" in prompt_final:
-            prompt_final = f"Woman wearing {prompt_final}, full body, elegant, studio photo, fashion catalog"
+            prompt_final = f"{genero} wearing {prompt_final}, full body, elegant, studio photo, fashion catalog"
         elif "TROUSERS" in prompt_final or "JEANS" in prompt_final or "PANTS" in prompt_final:
-            prompt_final = f"Woman wearing {prompt_final}, high waist, tailored, with white blouse, full body, elegant, studio photo, fashion catalog"
+            prompt_final = f"{genero} wearing {prompt_final}, high waist, tailored, with white blouse, full body, elegant, studio photo, fashion catalog"
         elif "DRESS" in prompt_final or "GOWN" in prompt_final:
-            prompt_final = f"Woman wearing {prompt_final}, full body, elegant, studio photo, fashion catalog"
+            prompt_final = f"{genero} wearing {prompt_final}, full body, elegant, studio photo, fashion catalog"
         elif "SKIRT" in prompt_final:
-            prompt_final = f"Woman wearing {prompt_final}, with white blouse, full body, elegant, studio photo, fashion catalog"
+            prompt_final = f"{genero} wearing {prompt_final}, with white blouse, full body, elegant, studio photo, fashion catalog"
         elif "SHORTS" in prompt_final:
-            prompt_final = f"Woman wearing {prompt_final}, with white top, full body, elegant, studio photo"
+            prompt_final = f"{genero} wearing {prompt_final}, with white top, full body, elegant, studio photo"
         elif "JUMPSUIT" in prompt_final or "ROMPER" in prompt_final:
-            prompt_final = f"Woman wearing {prompt_final}, full body, elegant, studio photo, fashion catalog"
+            prompt_final = f"{genero} wearing {prompt_final}, full body, elegant, studio photo, fashion catalog"
         else:
-            prompt_final = f"Woman wearing {prompt_final}, full body, elegant, studio photo, fashion catalog"
+            prompt_final = f"{genero} wearing {prompt_final}, full body, elegant, studio photo, fashion catalog"
     else:
-        if not prompt_final.lower().startswith("woman"):
-            prompt_final = f"Woman wearing {prompt_final}, full body, elegant, studio photo"
+        if not prompt_final.lower().startswith("woman") and not prompt_final.lower().startswith("man"):
+            prompt_final = f"{genero} wearing {prompt_final}, full body, elegant, studio photo"
 
-    # 3. Categoria pela peça principal
     if "DRESS" in prompt_final or "GOWN" in prompt_final or "JUMPSUIT" in prompt_final or "ROMPER" in prompt_final or "TWO PIECE" in prompt_final:
         if "TWO PIECE" in prompt_final and "TROUSERS" in prompt_final:
             cat = "lower_body"
@@ -1178,7 +1162,7 @@ def provador():
             <label>Foto da roupa</label>
             <input type="file" name="foto_roupa" accept="image/*" required>
             <input type="text" name="descricao" placeholder="Ex: blusa regata branca, calça jeans azul" style="width:100%; padding:10px; margin-top:10px; border-radius:8px;">
-            <button type="submit" id="btn-provar">Provar</button>
+            <button type="submit" id="btn-provar" class="botao">PROVAR ROUPA</button>
         </form>
         {% if resultado %}
         <section class="card">
@@ -1186,22 +1170,22 @@ def provador():
             <img src="{{ resultado }}" style="width:100%; border-radius:12px; margin-top:10px;">
             <br><br>
             <a href="{{ resultado }}" download="provador.png" target="_blank">
-                <button type="button" style="width:100%; padding:14px; font-size:16px;">Baixar Imagem</button>
+            <button type="button" class="botao">Baixar Imagem</button>
             </a>
         </section>
         {% endif %}
         {% if erro %}
         <p style="color:red; font-weight:bold;">{{ erro }}</p>
         {% endif %}
-        <div id="aguarde" style="display:none; margin-top:15px; padding:15px; background:#fff3cd; border-radius:8px; text-align:center; font-weight:bold;">
-            Aplicando a roupa, espere 40 segundos. Nao clique novamente e nao recarregue a pagina...
-        </div>
-        <script>
-        function mostrarAguarde(){
-            document.getElementById('aguarde').style.display = 'block';
-            document.getElementById('btn-provar').disabled = true;
-            document.getElementById('btn-provar').innerText = 'Aplicando... aguarde...';
-        }
+       <div id="aguarde" style="display:none; margin-top:15px; padding:15px; background:#fff3cd; border:1px solid #ffe69c; border-radius:12px; text-align:center; font-weight:bold;">
+    Aplicando a roupa... 💛 Aguarde, não recarregue e não clique novamente!
+</div>
+<script>
+function mostrarAguarde(){
+    document.getElementById('aguarde').style.display = 'block';
+    document.getElementById('btn-provar').disabled = true;
+    document.getElementById('btn-provar').innerText = 'APLICANDO... AGUARDE 💛';
+}
         </script>
     </section>
     """
