@@ -145,183 +145,224 @@ def tirar_acento(t):
 
 def montar_prompt_corrigido(descricao_pt):
     t = tirar_acento(descricao_pt.lower())
-    desc = t
-    prompt_final = desc
-    D = [
-        # TECNICAS DE COSTURA - DO SEU ANTIGO, NAO APAGAR
+    prompt_final = t
+
+    DICIONARIO = [
+        # ============ CONJUNTOS - TEM QUE VIR PRIMEIRO ============
+        ("conjunto de calca", "TWO PIECE MATCHING SET WITH TROUSERS"),
+        ("conjunto saia e blusa", "TWO PIECE MATCHING SET WITH SKIRT AND BLOUSE"),
+        ("conjunto de saia", "TWO PIECE MATCHING SET WITH SKIRT"),
+        ("conjunto", "TWO PIECE MATCHING SET"),
+
+        # ============ REGATA / OMBRO A OMBRO ============
+        ("blusa regata", "SLEEVELESS TANK TOP, thin straps, shoulders exposed, NO SLEEVES"),
+        ("regata branca", "WHITE SLEEVELESS TANK TOP, thin straps, shoulders exposed, NO SLEEVES"),
+        ("regata preta", "BLACK SLEEVELESS TANK TOP, thin straps, shoulders exposed, NO SLEEVES"),
+        ("regata vermelha", "RED SLEEVELESS TANK TOP, thin straps, shoulders exposed, NO SLEEVES"),
+        ("regata azul", "BLUE SLEEVELESS TANK TOP, thin straps, shoulders exposed, NO SLEEVES"),
+        ("regata", "SLEEVELESS TANK TOP, thin straps, shoulders exposed, NO SLEEVES"),
+        ("blusa ciganinha", "OFF SHOULDER BLOUSE, shoulders exposed, NO SLEEVES"),
+        ("blusa ombro a ombro", "OFF SHOULDER BLOUSE, shoulders exposed"),
+        ("blusa de um ombro so", "ONE SHOULDER BLOUSE"),
+        ("blusa transparente", "SHEER TRANSPARENT BLOUSE"),
+        ("ombro a ombro", "OFF SHOULDER, shoulders exposed"),
+        ("ciganinha", "OFF SHOULDER, shoulders exposed"),
+
+        # ============ MANGAS / DECOTES / GOLAS ============
         ("tomara que caia", "STRAPLESS tube top, no straps"),
-        ("manga longa", "LONG SLEEVE"),
         ("manga curta", "SHORT SLEEVE"),
-        ("manga bufante", "PUFFY SLEEVE"),
-        ("decote em v", "V NECKLINE"),
+        ("manga longa", "LONG SLEEVE"),
+        ("manga bufante", "PUFFY SLEEVES, with volume"),
+        ("manga sino", "BELL SLEEVES"),
+        ("decote v", "V-NECKLINE"),
+        ("decote quadrado", "SQUARE NECKLINE"),
         ("decote redondo", "ROUND NECKLINE"),
         ("gola alta", "HIGH NECK"),
-        ("bojo", "PADDED BRA CUP, with foam, push-up"),
-        ("com espuma", "WITH FOAM PADDING, push-up"),
-        ("pala", "YOKE DETAIL ON SHOULDER"),
-        ("cava", "SLEEVELESS, armhole"),
-        ("gode", "FLARED CIRCLE SKIRT, with volume"),
-        ("babado", "RUFFLE"),
-        ("vies", "BIAS TAPE FINISH"),
-        ("pence", "FITTED AT WAIST"),
-        ("cos", "HIGH WAISTBAND"),
-        # CORES
-        ("vinho", "MARSALA BURGUNDY"),
-        ("marsala", "MARSALA BURGUNDY"),
-        ("bordo", "MARSALA BURGUNDY"),
-        ("mostarda", "MUSTARD YELLOW"),
-        ("verde oliva", "OLIVE GREEN"),
-        ("verde musgo", "MOSS GREEN"),
-        ("verde menta", "MINT GREEN"),
-        ("rosa bebe", "BABY PINK"),
-        ("rosa choque", "HOT PINK"),
-        ("nude", "NUDE BEIGE"),
-        ("bege", "BEIGE"),
-        ("marrom", "BROWN"),
-        ("caramelo", "CARAMEL BROWN"),
-        ("terracota", "TERRACOTTA ORANGE"),
-        ("laranja", "ORANGE"),
-        ("salmao", "SALMON PINK"),
-        ("lilas", "LILAC PURPLE"),
-        ("roxo", "PURPLE"),
+        ("gola v", "V-NECK"),
+        ("gola redonda", "ROUND NECK"),
+        ("frente unica", "HALTER NECK"),
+
+        # ============ TECIDOS ============
+        ("cetim", "SATIN FABRIC"),
+        ("seda", "SILK FABRIC"),
+        ("renda", "LACE FABRIC"),
+        ("linho", "LINEN FABRIC"),
+        ("veludo", "VELVET FABRIC"),
+        ("crepe", "CREPE FABRIC"),
+        ("tule", "TULLE FABRIC"),
+        ("jeans", "DENIM"),
+        ("couro", "LEATHER"),
+        ("tricot", "KNIT"),
+        ("algodao", "COTTON"),
+        ("paete", "SEQUIN FABRIC"),
+        ("transparente", "SHEER TRANSPARENT"),
+
+        # ============ CORES ============
         ("azul royal", "ROYAL BLUE"),
+        ("azul bebe", "BABY BLUE"),
         ("azul marinho", "NAVY BLUE"),
-        ("azul bebe", "LIGHT BLUE"),
+        ("azul claro", "LIGHT BLUE"),
+        ("azul escuro", "DARK BLUE"),
         ("azul turquesa", "TURQUOISE BLUE"),
         ("azul petroleo", "PETROL BLUE"),
-        ("cinza", "GRAY"),
-        ("prata", "SILVER"),
+        ("verde musgo", "MOSS GREEN"),
+        ("verde oliva", "OLIVE GREEN"),
+        ("verde menta", "MINT GREEN"),
+        ("verde escuro", "DARK GREEN"),
+        ("verde limao", "LIME GREEN"),
+        ("rosa bebe", "BABY PINK"),
+        ("rosa choque", "HOT PINK"),
+        ("rosa claro", "LIGHT PINK"),
+        ("vermelho vinho", "BURGUNDY"),
+        ("vinho", "BURGUNDY"),
+        ("terracota", "TERRACOTTA ORANGE"),
+        ("laranja", "ORANGE"),
+        ("amarelo", "YELLOW"),
         ("dourado", "GOLD"),
-        ("ouro", "GOLD"),
+        ("prata", "SILVER"),
         ("preto", "BLACK"),
         ("branco", "WHITE"),
         ("off white", "OFF WHITE"),
-        ("creme", "CREAM"),
-        ("vermelho", "RED"),
-        ("amarelo", "YELLOW"),
-        # TECIDOS
-        ("cetim", "SATIN FABRIC"),
-        ("veludo", "VELVET FABRIC"),
-        ("renda", "LACE FABRIC"),
-        ("tule", "TULLE FABRIC"),
-        ("linho", "LINEN FABRIC"),
-        ("algodao", "COTTON FABRIC"),
-        ("crepe", "CREPE FABRIC"),
-        ("viscose", "VISCOSE FABRIC"),
-        ("tricoline", "COTTON POPLIN"),
-        ("jeans", "DENIM FABRIC"),
-        ("couro", "LEATHER"),
-        ("paete", "SEQUIN FABRIC"),
-        ("lantejoula", "SEQUIN"),
-        ("chiffon", "CHIFFON FABRIC"),
-        ("organza", "ORGANZA FABRIC"),
-        ("malha", "KNIT FABRIC"),
-        ("moletom", "SWEATSHIRT FABRIC"),
-        # DECOTES / GOLAS / MANGAS
-        ("ombro a ombro", "OFF SHOULDER"),
-        ("ciganinha", "OFF SHOULDER RUFFLED"),
-        ("decote coracao", "SWEETHEART NECKLINE"),
-        ("decote halter", "HALTER NECKLINE"),
-        ("frente unica", "HALTER NECKLINE"),
-        ("gola mandarim", "MANDARIN COLLAR"),
-        ("gola canoa", "BOAT NECKLINE"),
-        ("gola v", "V NECKLINE"),
-        ("gola redonda", "ROUND NECKLINE"),
-        ("gola quadrada", "SQUARE NECKLINE"),
-        ("decote quadrado", "SQUARE NECKLINE"),
-        ("manga morcego", "BATWING SLEEVE"),
-        ("manga 3/4", "THREE QUARTER SLEEVE"),
-        ("manga regata", "SLEEVELESS"),
-        ("sem manga", "SLEEVELESS"),
-        ("alca fina", "SPAGHETTI STRAP"),
-        ("alcinha", "SPAGHETTI STRAP"),
-        # MODELOS
-        ("sereia", "MERMAID FIT"),
+        ("cinza", "GREY"),
+        ("marrom", "BROWN"),
+        ("bege", "BEIGE"),
+        ("nude", "NUDE"),
+        ("lilas", "LILAC"),
+        ("roxo", "PURPLE"),
+
+        # ============ VESTIDOS ============
+        ("vestido de noiva", "FORMAL WEDDING GOWN, elegant"),
+        ("vestido de festa", "FORMAL EVENING GOWN, elegant"),
+        ("vestido de formatura", "FORMAL EVENING GOWN, elegant"),
+        ("vestido de casamento", "FORMAL EVENING GOWN, elegant"),
+        ("vestido longo", "LONG GOWN, elegant"),
+        ("vestido curto", "SHORT DRESS"),
+        ("vestido midi", "MIDI DRESS"),
+        ("vestido tomara que caia", "STRAPLESS DRESS"),
         ("vestido sereia", "MERMAID DRESS"),
-        ("saia sereia", "MERMAID SKIRT"),
-        ("envelope", "WRAP STYLE"),
-        ("transpassado", "WRAP STYLE"),
-        ("evase", "A LINE"),
-        ("princesa", "A LINE PRINCESS"),
-        ("fenda", "SLIT"),
-        ("fenda alta", "HIGH SLIT"),
-        ("acinturado", "FITTED WAIST"),
-        ("cintura alta", "HIGH WAIST"),
-        ("cintura baixa", "LOW WAIST"),
-        ("costas abertas", "OPEN BACK"),
-        ("costas nuas", "OPEN BACK"),
-        ("justo", "BODYCON FIT"),
-        ("largo", "OVERSIZED LOOSE FIT"),
-        ("soltinho", "LOOSE FLOWY FIT"),
-        ("curto", "SHORT LENGTH"),
-        ("longo", "LONG LENGTH"),
-        ("midi", "MIDI LENGTH"),
-        ("mini", "MINI LENGTH"),
-        ("rodado", "FULL CIRCLE SKIRT"),
-        ("plissado", "PLEATED"),
-        ("pregueado", "PLEATED"),
-        # PECAS
+        ("vestido princesa", "PRINCESS BALL GOWN, voluminous skirt"),
+        ("vestido rodado", "FIT AND FLARE DRESS, voluminous skirt"),
+        ("vestido envelope", "WRAP DRESS"),
+        ("vestido tubinho", "BODYCON SHEATH DRESS"),
+        ("vestido ciganinha", "OFF SHOULDER DRESS, shoulders exposed"),
+        ("vestido com fenda", "DRESS WITH HIGH SLIT"),
+        ("vestido gode", "FIT AND FLARE DRESS"),
         ("vestido", "DRESS"),
+
+        # ============ CALÇAS ============
+        ("calca pantalona", "WIDE LEG TROUSERS"),
+        ("calca jeans", "DENIM JEANS"),
+        ("calca de alfaiataria", "TAILORED TROUSERS"),
+        ("calca social", "TAILORED TROUSERS"),
+        ("calca flare", "FLARED TROUSERS"),
+        ("calca boca de sino", "FLARED TROUSERS"),
+        ("calca skinny", "SKINNY FIT TROUSERS"),
+        ("calca justa", "SKINNY FIT TROUSERS"),
+        ("calca cargo", "CARGO TROUSERS WITH POCKETS"),
+        ("calca cintura alta", "HIGH WAIST TROUSERS"),
+        ("calca", "TROUSERS"),
+        ("pantalona", "WIDE LEG TROUSERS"),
+
+        # ============ SAIAS / SHORTS ============
+        ("saia longa", "LONG SKIRT"),
+        ("saia midi", "MIDI SKIRT"),
+        ("saia curta", "MINI SKIRT"),
+        ("saia rodada", "FULL CIRCLE SKIRT"),
+        ("saia lapis", "PENCIL SKIRT"),
+        ("saia plissada", "PLEATED SKIRT"),
+        ("saia de couro", "LEATHER SKIRT"),
+        ("saia jeans", "DENIM SKIRT"),
+        ("saia gode", "FIT AND FLARE SKIRT"),
         ("saia", "SKIRT"),
-        ("blusa", "BLOUSE"),
-        ("calca", "PANTS"),
+        ("short jeans", "DENIM SHORTS"),
         ("short", "SHORTS"),
         ("macacao", "JUMPSUIT"),
-        ("terno", "SUIT"),
-        ("blazer", "BLAZER"),
-        ("colete", "VEST"),
+        ("macaquinho", "ROMPER"),
+
+        # ============ PARTE DE CIMA ============
+        ("camiseta", "T-SHIRT"),
         ("camisa social", "DRESS SHIRT"),
+        ("camisa oversized", "OVERSIZED SHIRT"),
+        ("camisa larga", "OVERSIZED SHIRT"),
         ("camisa", "SHIRT"),
+        ("blusa de seda", "SILK BLOUSE"),
+        ("blusa cropped", "CROPPED BLOUSE"),
         ("cropped", "CROPPED TOP"),
+        ("blusa", "BLOUSE"),
+        ("jaqueta", "JACKET"),
+        ("blazer", "BLAZER"),
         ("top", "TOP"),
-        # ESTAMPAS
-        ("bolas", "POLKA DOTS"),
-        ("bolinhas", "POLKA DOTS"),
-        ("listras", "STRIPES"),
-        ("xadrez", "PLAID"),
+        ("body", "BODYSUIT"),
+        ("cardigan", "CARDIGAN"),
+        ("sueter", "SWEATER"),
+        ("colete", "VEST"),
+        ("kimono", "KIMONO"),
+
+        # ============ ESTAMPAS ============
         ("floral", "FLORAL PRINT"),
-        ("flores", "FLORAL PRINT"),
-        ("oncinha", "LEOPARD PRINT"),
-        ("zebra", "ZEBRA PRINT"),
+        ("listrado", "STRIPED"),
+        ("xadrez", "PLAID"),
         ("poa", "POLKA DOTS"),
-        # FESTA / NOIVA
-        ("formatura", "FORMAL EVENING GOWN, graduation prom dress, elegant"),
-        ("festa", "FORMAL EVENING GOWN, party dress, elegant"),
-        ("vestido de festa", "FORMAL EVENING GOWN, elegant party dress"),
-        ("noiva", "BRIDAL GOWN, white wedding dress, elegant"),
-        ("vestido de noiva", "BRIDAL GOWN, white wedding dress"),
-        ("casamento", "WEDDING GOWN, elegant"),
-        ("madrinha", "BRIDESMAID DRESS, elegant formal dress"),
-        ("madrinha de casamento", "BRIDESMAID DRESS, elegant"),
-        ("mae da noiva", "MOTHER OF THE BRIDE DRESS, elegant formal"),
-        ("mae do noivo", "MOTHER OF THE GROOM DRESS, elegant formal"),
-        ("daminha", "FLOWER GIRL DRESS, little girl princess dress"),
-        ("debutante", "DEBUTANTE BALL GOWN, princess dress"),
-        ("15 anos", "QUINCEANERA BALL GOWN, princess dress, voluminous"),
-        ("xv anos", "QUINCEANERA BALL GOWN, princess dress"),
-        ("gala", "GALA EVENING GOWN, luxurious"),
-        ("baile", "BALL GOWN, formal"),
-        ("vestido princesa", "PRINCESS BALL GOWN, voluminous skirt"),
-        ("vestido de princesa", "PRINCESS BALL GOWN, voluminous skirt"),
-        ("cauda", "LONG TRAIN, trailing fabric"),
-        ("com cauda", "WITH LONG TRAIN"),
-        ("veu", "WITH VEIL"),
-        ("com veu", "WITH VEIL"),
+        ("bolinha", "POLKA DOTS"),
+        ("animal print", "ANIMAL PRINT"),
+        ("oncinha", "LEOPARD PRINT"),
+
+        # ============ OCASIÃO ============
+        ("pra festa", "FOR PARTY, elegant"),
+        ("pra formatura", "FOR GRADUATION PARTY, elegant"),
+        ("pra casamento", "FOR WEDDING, elegant"),
+        ("pra trabalho", "FOR WORK, elegant, office"),
+        ("pra praia", "FOR BEACH, light"),
+        ("para festa", "FOR PARTY, elegant"),
+        ("para formatura", "FOR GRADUATION PARTY, elegant"),
+        ("para casamento", "FOR WEDDING, elegant"),
+        ("para trabalho", "FOR WORK, elegant, office"),
+        ("para praia", "FOR BEACH, light"),
     ]
-    D = sorted(D, key=lambda x: len(x[0]), reverse=True)
-    for pt, en in D:
+
+    # 1. Traduz do maior pro menor
+    d = sorted(DICIONARIO, key=lambda x: len(x[0]), reverse=True)
+    for pt, en in d:
         if pt in t:
             prompt_final = prompt_final.replace(pt, en)
 
-    t = descricao_pt.lower()
-    if "camiseta" in t or "camisa" in t or "top" in t:
-        cat = "upper_body"
-    elif "bojo" in t or "sutia" in t or "cropped" in t or "blusa" in t:
-        cat = "tops"
-    elif "calca" in t:
+    # 2. Vira frase completa
+    if len(t.split()) <= 3:
+        if "TANK TOP" in prompt_final:
+            if "NO SLEEVES" not in prompt_final:
+                prompt_final = prompt_final + ", NO SLEEVES, thin straps, shoulders exposed"
+            prompt_final = f"Woman wearing {prompt_final}, with black tailored trousers, full body, elegant, studio photo, fashion catalog"
+        elif "TWO PIECE" in prompt_final:
+            prompt_final = f"Woman wearing {prompt_final}, full body, elegant, studio photo, fashion catalog"
+        elif "TROUSERS" in prompt_final or "JEANS" in prompt_final or "PANTS" in prompt_final:
+            prompt_final = f"Woman wearing {prompt_final}, high waist, tailored, with white blouse, full body, elegant, studio photo, fashion catalog"
+        elif "DRESS" in prompt_final or "GOWN" in prompt_final:
+            prompt_final = f"Woman wearing {prompt_final}, full body, elegant, studio photo, fashion catalog"
+        elif "SKIRT" in prompt_final:
+            prompt_final = f"Woman wearing {prompt_final}, with white blouse, full body, elegant, studio photo, fashion catalog"
+        elif "SHORTS" in prompt_final:
+            prompt_final = f"Woman wearing {prompt_final}, with white top, full body, elegant, studio photo"
+        elif "JUMPSUIT" in prompt_final or "ROMPER" in prompt_final:
+            prompt_final = f"Woman wearing {prompt_final}, full body, elegant, studio photo, fashion catalog"
+        else:
+            prompt_final = f"Woman wearing {prompt_final}, full body, elegant, studio photo, fashion catalog"
+    else:
+        if not prompt_final.lower().startswith("woman"):
+            prompt_final = f"Woman wearing {prompt_final}, full body, elegant, studio photo"
+
+    # 3. Categoria pela peça principal
+    if "DRESS" in prompt_final or "GOWN" in prompt_final or "JUMPSUIT" in prompt_final or "ROMPER" in prompt_final or "TWO PIECE" in prompt_final:
+        if "TWO PIECE" in prompt_final and "TROUSERS" in prompt_final:
+            cat = "lower_body"
+        elif "TWO PIECE" in prompt_final and "SKIRT" in prompt_final:
+            cat = "lower_body"
+        else:
+            cat = "dresses"
+    elif "SKIRT" in prompt_final or "TROUSERS" in prompt_final or "JEANS" in prompt_final or "PANTS" in prompt_final or "SHORTS" in prompt_final:
         cat = "lower_body"
     else:
-        cat = "dresses"
+        cat = "upper_body"
+
     return prompt_final, cat
 
 
@@ -549,7 +590,7 @@ def gerar_com_flux(prompt):
     return baixar_imagem_base64(primeira_url_saida(resultado))
 
 
-def gerar_provador(foto_pessoa_base64, foto_roupa_base64):
+def gerar_provador(foto_pessoa_base64, foto_roupa_base64, descricao_pt=""):
     print("[PROVADOR] Gerando roupa...")
     descricao = "roupa da segunda imagem, manter cor, estampa e modelo exatos"
     roupa = foto_roupa_base64
@@ -578,57 +619,18 @@ def gerar_provador(foto_pessoa_base64, foto_roupa_base64):
     except Exception as e:
         print(f"Não consegui diminuir: {e}")
 
-    # Descobre o tipo de roupa sozinho
-    d = descricao.lower()
-    if any(
-        p in d
-        for p in [
-            "conjunto",
-            "macacão",
-            "macacao",
-            "jumpsuit",
-            "vestido",
-            "noiva",
-            "longo",
-        ]
-    ):
-        categoria = "dresses"
-        tipo = "vestido / roupa de corpo inteiro"
-    elif any(
-        p in d
-        for p in [
-            "calça",
-            "calca",
-            "legging",
-            "jeans",
-            "short",
-            "saia",
-            "bermuda",
-            "pantalona",
-        ]
-    ):
-        categoria = "lower_body"
-        tipo = "parte de baixo"
-    elif any(
-        p in d
-        for p in [
-            "blusa",
-            "camisa",
-            "camiseta",
-            "top",
-            "cropp",
-            "cropped",
-            "jaqueta",
-            "casaco",
-            "blazer",
-            "suéter",
-            "moletom",
-            "colete",
-        ]
-    ):
-        categoria = "upper_body"
-        tipo = "parte de cima"
+    # CORREÇÃO: usa a MESMA função do Gerar Roupa
+    if descricao_pt and descricao_pt.strip() != "":
+        prompt_final, categoria = montar_prompt_corrigido(descricao_pt)
+        if categoria == "dresses":
+            tipo = "vestido / roupa de corpo inteiro"
+        elif categoria == "lower_body":
+            tipo = "parte de baixo"
+        else:
+            tipo = "parte de cima"
+        descricao = prompt_final
     else:
+        descricao = "roupa da segunda imagem, manter cor, estampa e modelo exatos"
         categoria = "dresses"
         tipo = "roupa"
 
@@ -1146,6 +1148,7 @@ def provador():
     if request.method == "POST":
         foto = request.files.get("foto")
         foto_roupa = request.files.get("foto_roupa")
+        descricao = request.form.get("descricao", "")
         if not foto or not foto.filename:
             erro = "Envie uma foto sua."
         elif not foto_roupa or not foto_roupa.filename:
@@ -1160,7 +1163,7 @@ def provador():
                 conteudo_roupa = foto_roupa.read()
                 tipo_roupa = foto_roupa.mimetype or "image/jpeg"
                 foto_roupa_base64 = "data:" + tipo_roupa + ";base64," + base64.b64encode(conteudo_roupa).decode("utf-8")
-                resultado = gerar_provador(foto_base64, foto_roupa_base64)
+                resultado = gerar_provador(foto_base64, foto_roupa_base64, descricao)
             except Exception:
                 import traceback
                 print("[ERRO PROVADOR]", traceback.format_exc())
@@ -1174,6 +1177,7 @@ def provador():
             <input type="file" name="foto" accept="image/*" required>
             <label>Foto da roupa</label>
             <input type="file" name="foto_roupa" accept="image/*" required>
+            <input type="text" name="descricao" placeholder="Ex: blusa regata branca, calça jeans azul" style="width:100%; padding:10px; margin-top:10px; border-radius:8px;">
             <button type="submit" id="btn-provar">Provar</button>
         </form>
         {% if resultado %}
